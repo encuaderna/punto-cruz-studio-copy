@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { PlusCircle, Search, FolderOpen, Tag, X } from 'lucide-react';
+import { PlusCircle, Search, FolderOpen, Tag, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ProjectCard from '@/components/ProjectCard';
@@ -55,6 +55,37 @@ export default function Biblioteca() {
 
   const hasFilters = search || statusFilter !== 'todos' || tagFilter;
 
+  const handleExportCSV = () => {
+    const headers = ['Nombre', 'Estado', 'Dimensiones (pts)', 'Tamaño físico', 'Tela Aida', 'Colores', 'Marca hilos', 'Dificultad', 'Tiempo estimado', 'Puntadas totales', 'Avance (%)', 'Etiquetas', 'Notas'];
+    const rows = projects.map(p => {
+      let etiquetas = '';
+      try { etiquetas = JSON.parse(p.etiquetas || '[]').join(', '); } catch {}
+      return [
+        p.nombre || '',
+        STATUS_LABELS[p.estado] || p.estado || '',
+        `${p.ancho_puntos || 0} × ${p.alto_puntos || 0}`,
+        p.tamano_estimado_cm || '',
+        p.tipo_aida ? `${p.tipo_aida} ct` : '',
+        p.max_colores || '',
+        p.marca_hilos || '',
+        p.dificultad || '',
+        p.tiempo_estimado || '',
+        p.total_puntadas || 0,
+        p.porcentaje_avance || 0,
+        etiquetas,
+        (p.notas || '').replace(/\n/g, ' ')
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+    });
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inventario-punto-cruz-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -67,12 +98,20 @@ export default function Biblioteca() {
     <div className="p-4 md:p-6 lg:p-8 space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-bold">Biblioteca</h1>
-        <Button asChild size="sm">
-          <Link to="/nuevo">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Nuevo
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {projects.length > 0 && (
+            <Button variant="outline" size="sm" onClick={handleExportCSV}>
+              <Download className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
+          )}
+          <Button asChild size="sm">
+            <Link to="/nuevo">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Nuevo
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Búsqueda */}
