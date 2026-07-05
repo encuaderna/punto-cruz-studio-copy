@@ -189,16 +189,29 @@ export default function NuevoPatron() {
       )}
 
       {/* Steps indicator */}
-      <div className="flex items-center gap-2">
-        {[1, 2, 3].map(s => (
-          <div key={s} className="flex items-center gap-2 flex-1">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shrink-0 transition-colors ${
-              step >= s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>{s}</div>
-            {s < 3 && <div className={`h-0.5 flex-1 rounded-full transition-colors ${step > s ? 'bg-primary' : 'bg-border'}`} />}
+      {(() => {
+        const pasos = ['Subir imagen', 'Ajustar colores', 'Generar patrón'];
+        return (
+          <div className="flex items-start gap-1">
+            {pasos.map((label, i) => {
+              const s = i + 1;
+              const active = step === s;
+              const done = step > s;
+              return (
+                <div key={s} className="flex items-start gap-1 flex-1">
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                      done ? 'bg-primary text-primary-foreground' : active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                    }`}>{s}</div>
+                    <span className={`text-[10px] text-center leading-tight w-16 ${active ? 'text-primary font-medium' : 'text-muted-foreground'}`}>{label}</span>
+                  </div>
+                  {s < 3 && <div className={`h-0.5 flex-1 mt-4 rounded-full transition-colors ${done ? 'bg-primary' : 'bg-border'}`} />}
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Step 1: Upload */}
       {step === 1 && (
@@ -220,6 +233,18 @@ export default function NuevoPatron() {
             <Camera className="w-4 h-4 mr-2" />
             Tomar foto
           </Button>
+
+          {/* Preview de los próximos pasos */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="bg-muted/50 rounded-xl p-3 border border-border/60">
+              <p className="text-xs font-semibold text-foreground mb-1">Paso 2 · Ajustar colores</p>
+              <p className="text-xs text-muted-foreground">Rota la imagen, corrige el brillo, contraste y saturación para que el patrón salga más limpio.</p>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-3 border border-border/60">
+              <p className="text-xs font-semibold text-foreground mb-1">Paso 3 · Generar patrón</p>
+              <p className="text-xs text-muted-foreground">Elige el tamaño, número de colores y tipo de tela Aida. La app convierte tu imagen automáticamente.</p>
+            </div>
+          </div>
         </div>
       )}
 
