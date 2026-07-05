@@ -1,0 +1,123 @@
+{
+  "name": "Patron",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string"
+    },
+    "imagen_original": {
+      "type": "string",
+      "format": "uri"
+    },
+    "imagen_patron": {
+      "type": "string",
+      "format": "uri"
+    },
+    "foto_final": {
+      "type": "string",
+      "format": "uri"
+    },
+    "estado": {
+      "type": "string",
+      "enum": [
+        "borrador",
+        "en_progreso",
+        "completado",
+        "archivado"
+      ],
+      "default": "borrador"
+    },
+    "ancho_puntos": {
+      "type": "number",
+      "default": 50
+    },
+    "alto_puntos": {
+      "type": "number",
+      "default": 50
+    },
+    "tipo_aida": {
+      "type": "number",
+      "enum": [
+        11,
+        14,
+        16,
+        18
+      ],
+      "default": 14
+    },
+    "max_colores": {
+      "type": "number",
+      "default": 15
+    },
+    "nivel_detalle": {
+      "type": "string",
+      "enum": [
+        "bajo",
+        "medio",
+        "alto"
+      ],
+      "default": "medio"
+    },
+    "marca_hilos": {
+      "type": "string",
+      "enum": [
+        "DMC",
+        "Anchor",
+        "Presencia"
+      ],
+      "default": "DMC"
+    },
+    "grid_data": {
+      "type": "string"
+    },
+    "colores_data": {
+      "type": "string"
+    },
+    "progreso_data": {
+      "type": "string"
+    },
+    "total_puntadas": {
+      "type": "number",
+      "default": 0
+    },
+    "puntadas_completadas": {
+      "type": "number",
+      "default": 0
+    },
+    "porcentaje_avance": {
+      "type": "number",
+      "default": 0
+    },
+    "notas": {
+      "type": "string"
+    },
+    "vista_modo": {
+      "type": "string",
+      "enum": [
+        "color",
+        "simbolos",
+        "mixto"
+      ],
+      "default": "color"
+    },
+    "tamano_estimado_cm": {
+      "type": "string"
+    },
+    "dificultad": {
+      "type": "string",
+      "enum": [
+        "facil",
+        "intermedio",
+        "dificil",
+        "experto"
+      ],
+      "default": "intermedio"
+    },
+    "tiempo_estimado": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

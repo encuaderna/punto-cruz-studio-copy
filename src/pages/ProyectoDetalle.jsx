@@ -1,0 +1,264 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/components/ui/use-toast';
+import { STATUS_LABELS, DIFFICULTY_LABELS, AIDA_INFO, suggestThreadCount } from '@/lib/constants';
+
+export default function ProyectoDetalle() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [patron, setPatron] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notas, setNotas] = useState('');
+  const [savingNotas, setSavingNotas] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const p = await base44.entities.Patron.get(id);
+        setPatron(p);
+        setNotas(p.notas || '');
+      } catch {
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
+
+  const handleSaveNotas = async () => {
+    setSavingNotas(true);
+    try {
+      await base44.entities.Patron.update(id, { notas });
+      toast({ title: "Notas guardadas" });
+    } catch {
+      toast({ title: "Error", variant: "destructive" });
+    } finally {
+      setSavingNotas(false);
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      const { id: _id, created_date, updated_date, created_by_id, ...data } = patron;
+      data.nombre = `${data.nombre} (copia)`;
+      data.estado = 'borrador';
+      data.puntadas_completadas = 0;
+      data.porcentaje_avance = 0;
+      data.progreso_data = JSON.stringify({});
+      const newP = await base44.entities.Patron.create(data);
+      toast({ title: "Patrón duplicado" });
+      navigate(`/proyecto/${newP.id}`);
+    } catch {
+      toast({ title: "Error al duplicar", variant: "destructive" });
+    }
+  };
+
+  const handleArchive = async () => {
+    await base44.entities.Patron.update(id, { estado: 'archivado' });
+    toast({ title: "Patrón archivado" });
+    navigate('/biblioteca');
+  };
+
+  const handleDelete = async () => {
+    await base44.entities.Patron.delete(id);
+    toast({ title: "Patrón eliminado" });
+    navigate('/biblioteca');
+  };
+
+  const handlePhotoUpload = async (file) => {
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.Patron.update(id, { foto_final: file_url });
+      setPatron(prev => ({ ...prev, foto_final: file_url }));
+      toast({ title: "Foto agregada" });
+    } catch {
+      toast({ title: "Error al subir foto", variant: "destructive" });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!patron) return null;
+  const threads = suggestThreadCount(patron.tipo_aida);
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="font-heading text-xl font-bold">{patron.nombre}</h1>
+          <Badge className="mt-1 text-xs">{STATUS_LABELS[patron.estado]}</Badge>
+        </div>
+      </div>
+
+      {/* Image */}
+      {patron.imagen_original && (
+        <div className="rounded-2xl overflow-hidden bg-muted">
+          <img src={patron.imagen_original} alt={patron.nombre} className="w-full max-h-64 object-contain" />
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Button asChild className="h-12">
+          <Link to={`/bordado/${id}`}>
+            <Play className="w-4 h-4 mr-2" />
+            Bordar
+          </Link>
+        </Button>
+        <Button variant="secondary" asChild className="h-12">
+          <Link to={`/editor/${id}`}>
+            <Edit3 className="w-4 h-4 mr-2" />
+            Editar
+          </Link>
+        </Button>
+        <Button variant="outline" onClick={handleDuplicate} className="h-12">
+          <Copy className="w-4 h-4 mr-2" />
+          Duplicar
+        </Button>
+        <Button variant="outline" onClick={handleArchive} className="h-12">
+          <Archive className="w-4 h-4 mr-2" />
+          Archivar
+        </Button>
+      </div>
+
+      {/* Progress */}
+      {patron.estado === 'en_progreso' && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h3 className="font-heading font-semibold">Progreso</h3>
+          <div className="flex justify-between text-sm">
+            <span>{patron.puntadas_completadas?.toLocaleString()} / {patron.total_puntadas?.toLocaleString()} puntadas</span>
+            <span className="text-primary font-medium">{patron.porcentaje_avance}%</span>
+          </div>
+          <Progress value={patron.porcentaje_avance || 0} className="h-2" />
+        </div>
+      )}
+
+      {/* Details */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+        <h3 className="font-heading font-semibold">Detalles del patrón</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <Grid3X3 className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <p className="text-muted-foreground text-xs">Dimensiones</p>
+              <p className="font-medium">{patron.ancho_puntos} × {patron.alto_puntos} pts</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Ruler className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <p className="text-muted-foreground text-xs">Tamaño físico</p>
+              <p className="font-medium">{patron.tamano_estimado_cm}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <PaletteIcon className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <p className="text-muted-foreground text-xs">Colores / Marca</p>
+              <p className="font-medium">{patron.max_colores} — {patron.marca_hilos}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <p className="text-muted-foreground text-xs">Tiempo estimado</p>
+              <p className="font-medium">{patron.tiempo_estimado}</p>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3 pt-2">
+          <div className="bg-muted rounded-xl p-3 text-center">
+            <p className="text-xs text-muted-foreground">Tela Aida</p>
+            <p className="font-semibold text-sm">{patron.tipo_aida} ct</p>
+          </div>
+          <div className="bg-muted rounded-xl p-3 text-center">
+            <p className="text-xs text-muted-foreground">Dificultad</p>
+            <p className="font-semibold text-sm">{DIFFICULTY_LABELS[patron.dificultad]}</p>
+          </div>
+          <div className="bg-muted rounded-xl p-3 text-center">
+            <p className="text-xs text-muted-foreground">Hebras</p>
+            <p className="font-semibold text-sm">{threads}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Notes */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <h3 className="font-heading font-semibold">Notas</h3>
+        <Textarea
+          value={notas}
+          onChange={e => setNotas(e.target.value)}
+          placeholder="Agrega notas sobre tu proyecto..."
+          rows={3}
+        />
+        <Button variant="outline" size="sm" onClick={handleSaveNotas} disabled={savingNotas}>
+          {savingNotas ? 'Guardando...' : 'Guardar notas'}
+        </Button>
+      </div>
+
+      {/* Final Photo */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <h3 className="font-heading font-semibold">Foto del trabajo terminado</h3>
+        {patron.foto_final ? (
+          <img src={patron.foto_final} alt="Trabajo terminado" className="rounded-xl max-h-64 object-contain w-full" />
+        ) : (
+          <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
+            <Camera className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground mb-3">Agrega una foto cuando termines tu bordado</p>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="foto-final"
+              onChange={e => e.target.files[0] && handlePhotoUpload(e.target.files[0])}
+            />
+            <Button variant="outline" size="sm" onClick={() => document.getElementById('foto-final').click()}>
+              <Camera className="w-4 h-4 mr-2" />
+              Subir foto
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Delete */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="ghost" className="w-full text-destructive hover:text-destructive">
+            <Trash2 className="w-4 h-4 mr-2" />
+            Eliminar patrón
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar este patrón?</AlertDialogTitle>
+            <AlertDialogDescription>Esta acción no se puede deshacer. Se eliminará el patrón y todo su progreso.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
