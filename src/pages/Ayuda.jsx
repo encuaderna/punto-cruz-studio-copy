@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BookOpen, ChevronDown, ChevronRight, AlertTriangle, Lightbulb, Package, Scissors, Target, Zap } from 'lucide-react';
+import React from 'react';
+import { BookOpen, Target, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -9,26 +9,79 @@ const HELP_CONTENT = {
     label: "Principiante",
     icon: BookOpen,
     color: "text-green-600",
+    badge: "bg-green-100 text-green-700",
     sections: [
       {
-        title: "¿Qué es el punto cruz?",
-        content: "El punto cruz es una técnica de bordado donde se forman pequeñas X sobre una tela de trama regular (tela Aida). Es una de las formas de bordado más fáciles de aprender y permite crear diseños hermosos a partir de patrones cuadriculados."
+        title: "Tu primer proyecto: tela Aida 14, pequeño y manejable",
+        summary: "Por dónde empezar sin abrumarse.",
+        content: `Para tu primer bordado, elige un diseño de máximo 40×40 puntos sobre tela Aida 14 ct. Ese tamaño cabe en la palma de tu mano y lo puedes terminar en pocas sesiones, lo que da una enorme satisfacción.
+
+¿Por qué Aida 14? Tiene agujeros visibles sin necesidad de lupa y el cuadro es suficientemente grande para manejar la aguja con facilidad. Usa 2 hebras de hilo DMC (sepáralas del madejo de 6 con cuidado, tirando de a una).
+
+Pasos concretos para empezar:
+1. Dobla la tela a la mitad dos veces para encontrar el centro; márcalo con un alfiler o un hilo de color.
+2. Empieza a bordar desde el centro del patrón hacia los bordes.
+3. Haz todos los medios puntos en una dirección (////), luego vuelve con los cruces (\\\\).
+4. No hagas nudos al inicio: asegura el hilo pasándolo bajo las primeras puntadas del revés.
+5. Corta los tramos de hilo a máximo 40 cm para que no se enreden.
+
+Consejo clave: no intentes terminar todo de una vez. Media hora al día es ideal para no cansarte la vista ni los dedos.`
+      },
+      {
+        title: "Cómo leer un patrón: símbolos, cuadrícula y bloques 10×10",
+        summary: "Entiende el mapa antes de empezar a bordar.",
+        content: `Un patrón de punto cruz es como un mapa cuadriculado: cada cuadro representa una puntada y cada color (o símbolo) indica qué hilo usar.
+
+La cuadrícula y los bloques 10×10:
+Las líneas más gruesas dividen el patrón en bloques de 10×10 puntos. Esto es esencial para contar sin perderte. En vez de contar puntada a puntada, muévete de bloque en bloque.
+
+Los símbolos:
+Cuando hay muchos colores parecidos (varios tonos de azul, por ejemplo), los patrones usan símbolos distintos para cada uno (un triángulo, una X, un punto, etc.). En la app puedes alternar entre vista por color y vista por símbolo desde el editor.
+
+Cómo orientarte dentro del patrón:
+- Ubica el centro (marcado con flechas o cruces en el patrón) y empieza ahí.
+- Trabaja de a un bloque 10×10 a la vez.
+- Marca en la app cada puntada que completes para no perder tu lugar.
+- Si necesitas alejarte, deja la aguja "estacionada" en el último color que usaste.
+
+Tip: en el Modo bordado de la app puedes activar "Solo pendiente" para ver únicamente las puntadas que te faltan.`
+      },
+      {
+        title: "Errores comunes al comenzar y cómo prevenirlos",
+        summary: "Contar mal, tensión del hilo y perder el centro.",
+        content: `Estos son los tres errores que cometen casi todas las personas al empezar:
+
+❌ Contar mal los cuadros
+Prevención: usa siempre los bloques de 10×10 como referencia, no cuentes desde el borde sino desde el centro o desde una zona ya bordada.
+Corrección: si notas que algo "no cuadra", cuenta desde una referencia segura antes de deshacer todo.
+
+❌ Tensión incorrecta del hilo
+Prevención: el hilo debe quedar suave sobre la tela, ni demasiado apretado (arruga la tela) ni muy suelto (la puntada se ve floja). Practica en un pedacito de tela antes.
+Corrección: si la tela se frunce, lávala con agua tibia y estírala suavemente sobre una superficie plana para secar.
+
+❌ Perder el centro
+Prevención: marca el centro de tu tela con un hilo de color que puedas retirar luego (hilo de bastear). En la app, activa la guía de hileras y columnas en el Modo bordado.
+Corrección: cuenta desde la última puntada correcta que tengas y reubica tu posición antes de continuar.
+
+Recuerda: deshacer puntadas mal hechas es parte del proceso. No te frustres, ¡hasta las bordadoras expertas lo hacen!`
       },
       {
         title: "Materiales básicos que necesitas",
-        content: "• **Tela Aida**: la más común es la de 14 ct (cuentas por pulgada). Para principiantes se recomienda Aida 11 ct, que tiene cuadros más grandes.\n• **Hilos de bordar**: las marcas más comunes en Chile son DMC, Anchor y Presencia. Los hilos vienen en madejas y se separan en hebras.\n• **Aguja de punto cruz**: punta redondeada, tamaño 24 o 26.\n• **Bastidor**: para mantener la tela tensa.\n• **Tijeras pequeñas**: para cortar los hilos."
-      },
-      {
-        title: "¿Cuántas hebras usar?",
-        content: "Depende de la tela:\n• **Aida 11 ct**: usar 3 hebras\n• **Aida 14 ct**: usar 2 hebras (la más común)\n• **Aida 16 ct**: usar 2 hebras\n• **Aida 18 ct**: usar 1 hebra\n\nLos hilos DMC vienen con 6 hebras que puedes separar fácilmente."
-      },
-      {
-        title: "Cómo empezar tu primer bordado",
-        content: "1. Encuentra el centro de la tela doblándola a la mitad dos veces.\n2. Marca el centro con un alfiler.\n3. Empieza a bordar desde el centro del patrón hacia afuera.\n4. Haz todas las puntadas de un mismo color antes de cambiar.\n5. No hagas nudos: asegura el hilo pasándolo por debajo de las primeras puntadas."
-      },
-      {
-        title: "Cómo usar esta app",
-        content: "1. Ve a **Crear patrón** y sube una imagen o foto.\n2. Ajusta el brillo y contraste si es necesario.\n3. Elige el tamaño, la tela Aida y la cantidad de colores.\n4. La app convertirá tu imagen en un patrón cuadriculado.\n5. En el **Editor**, revisa los colores y ajusta lo que necesites.\n6. Cuando estés lista para bordar, entra al **Modo bordado** y marca cada puntada que vayas completando.\n7. ¡Tu progreso se guarda automáticamente!"
+        summary: "Lista esencial para empezar sin gastar de más.",
+        content: `No necesitas mucho para empezar. Esta es la lista mínima:
+
+• Tela Aida 14 ct: es la más versátil y fácil de conseguir.
+• Hilos DMC, Anchor o Presencia: las tres marcas son de buena calidad. Los hilos vienen en madejas con 6 hebras.
+• Aguja de punta redondeada, tamaño 24 o 26.
+• Bastidor o aro: mantiene la tela tensa y mejora la tensión de las puntadas.
+• Tijeras pequeñas con punta fina.
+
+Cuántas hebras usar según la tela:
+• Aida 11 ct → 3 hebras
+• Aida 14 ct → 2 hebras (la más común)
+• Aida 18 ct → 1 hebra
+
+Tip de ahorro: compra solo los hilos del patrón que vayas a hacer. Es tentador comprar mucho, pero los proyectos pequeños usan poquísimo hilo.`
       }
     ]
   },
@@ -36,45 +89,139 @@ const HELP_CONTENT = {
     label: "Intermedio",
     icon: Target,
     color: "text-blue-600",
+    badge: "bg-blue-100 text-blue-700",
     sections: [
       {
+        title: "Cómo adaptar una foto a patrón sin exceso de detalle",
+        summary: "Convertir imágenes sin que el resultado sea un caos de colores.",
+        content: `El mayor desafío al convertir fotos a patrones es que las fotografías tienen millones de colores y gradientes que no se pueden bordar tal cual.
+
+Claves para una buena conversión:
+1. Elige fotos con contornos claros y fondos simples. Un primer plano de una flor funciona mucho mejor que una escena compleja con muchos elementos.
+2. Aumenta el contraste de la imagen antes de convertirla (usa el ajustador de la app). Más contraste = colores más definidos = patrón más limpio.
+3. Empieza con pocos colores (8–12) y ve subiendo solo si el resultado no te convence. Más colores no siempre significa mejor patrón.
+4. Tamaño moderado: un patrón de 60×80 puntos ya captura bastante detalle para la mayoría de fotos.
+
+Qué evitar:
+- Fotos con fondo complicado (muchos colores de fondo se "cuelan" al patrón).
+- Imágenes con poca luz o muy desaturadas: el resultado tiende a ser monocromático.
+- Patrones demasiado grandes para empezar: es mejor hacer uno mediano y aprender de él.
+
+Flujo recomendado en la app: sube → ajusta brillo/contraste → elige tamaño mediano → prueba con 10 colores → revisa en el editor → simplifica si hace falta.`
+      },
+      {
+        title: "Cómo reducir colores manteniendo el motivo principal",
+        summary: "Simplificar sin perder la esencia del diseño.",
+        content: `Reducir colores es un arte. El objetivo es que el motivo siga siendo reconocible aunque uses menos tonos.
+
+Estrategia de reducción:
+1. Identifica los colores "protagonistas" (los que forman el motivo principal) y los "secundarios" (sombras, medios tonos, fondos).
+2. Fusiona primero los colores secundarios similares. En el Editor, selecciona un color y usa la función "Fusionar" para unirlo con el más parecido.
+3. Simplifica el fondo: si el fondo tiene 4 tonos de beige, cámbialo todo a 1 o 2.
+4. Revisa el resultado en vista de "Símbolos" para ver si el motivo sigue siendo claro.
+
+Regla práctica:
+- 6–8 colores: diseños muy gráficos, siluetas, iconos.
+- 10–15 colores: retratos de mascotas, flores, paisajes simples.
+- 15–25 colores: retratos de personas, escenas detalladas.
+
+Tip: a veces un patrón de 8 colores se ve más bonito que uno de 20 porque es más limpio y fácil de bordar. No le tengas miedo a simplificar.`
+      },
+      {
+        title: "Cómo retomar proyectos grandes usando la app como mapa",
+        summary: "Volver a un proyecto después de semanas sin perderte.",
+        content: `Dejar un proyecto grande por semanas (o meses) es muy común. El truco está en dejar buenas "marcas" antes de parar.
+
+Antes de dejar el proyecto:
+1. Guarda el progreso en la app (botón Guardar del Modo bordado). La app registra exactamente qué puntadas completaste.
+2. Sube una foto del estado actual en "Registro de progreso" del proyecto. Así puedes comparar visualmente antes y después.
+3. Deja una nota en el proyecto: en qué color ibas, qué zona estabas bordando, si encontraste algún error que debas corregir.
+
+Al retomar:
+1. Abre el proyecto desde la Biblioteca y revisa el porcentaje de avance.
+2. Entra al Modo bordado: las puntadas que ya marcaste aparecerán atenuadas o en color diferente.
+3. Usa el filtro por color para trabajar un hilo a la vez y no confundirte.
+4. Activa "Solo pendiente" para ver únicamente lo que falta.
+
+Si tienes un patrón impreso o físico:
+Marca con lápiz las zonas ya bordadas en el papel. La app y el papel se complementan perfectamente.`
+      },
+      {
         title: "Técnicas para mejorar tu bordado",
-        content: "• **Consistencia**: todas las X deben cruzar en la misma dirección (la hebra superior siempre va del mismo lado).\n• **Tensión uniforme**: no tires demasiado del hilo ni lo dejes muy suelto.\n• **Bordar por filas**: completa filas de medio punto (////) y luego vuelve con el otro medio (\\\\\\\\).\n• **Parking**: para patrones con muchos cambios de color, \"estaciona\" las agujas con cada color para no cortar."
-      },
-      {
-        title: "Cómo elegir los colores correctos",
-        content: "• Compara los colores en la pantalla con los hilos reales bajo luz natural.\n• Si un color DMC no está disponible, busca el equivalente en Anchor o Presencia usando la paleta de la app.\n• Cuando veas \"equivalente aproximado\" significa que el color es cercano pero no idéntico.\n• Considera comprar un muestrario de colores de tu marca favorita."
-      },
-      {
-        title: "Cómo leer patrones complejos",
-        content: "• Usa el modo **Símbolos** para patrones con muchos colores similares.\n• Activa la función **Resaltar color** para enfocarte en un solo color a la vez.\n• Las líneas gruesas cada 10 cuadros te ayudan a contar sin perderte.\n• Marca las puntadas completadas para no perder tu lugar."
-      },
-      {
-        title: "Organización del bordado",
-        content: "• Etiqueta tus madejas con el código del color.\n• Usa un organizador de hilos para mantener todo ordenado.\n• Borda en sesiones de 30-60 minutos para evitar cansancio visual.\n• Guarda el bastidor en una funda limpia cuando no lo uses."
+        summary: "Consistencia, tensión y organización del trabajo.",
+        content: `Con experiencia básica ya adquirida, estos detalles marcan la diferencia en el resultado final:
+
+Consistencia en la dirección de la X:
+Todas las puntadas superiores deben ir en la misma dirección (siempre de izquierda a derecha, o siempre de derecha a izquierda). Si mezclas, el bordado se ve disparejo.
+
+Bordar por filas:
+En vez de completar cada X de manera individual, haz todos los medios puntos de una fila completa (//////) y luego vuelve completando las X (\\\\\\). Esto es más rápido y da mejor tensión.
+
+Parking (estacionar colores):
+En zonas con muchos cambios de color pequeños, deja las agujas "estacionadas" a lo largo de la tela. Cuando necesitas un color, la aguja ya está en el lugar correcto.
+
+Organización de hilos:
+Usa un organizador con los códigos de color anotados. Antes de empezar una sesión, prepara los tramos de hilo que vas a necesitar (40 cm cada uno).`
       }
     ]
   },
   avanzado: {
-    label: "Avanzado",
+    label: "Avanzado / Emprendimiento",
     icon: Zap,
     color: "text-purple-600",
+    badge: "bg-purple-100 text-purple-700",
     sections: [
       {
-        title: "Patrones grandes y complejos",
-        content: "• Para patrones de más de 100×100 puntos, divide el trabajo en secciones.\n• Usa la función de **zoom** y **enfoque por zonas** en el modo bordado.\n• El modo **solo pendiente** te ayuda a ver exactamente qué falta.\n• Considera imprimir secciones del patrón como respaldo."
+        title: "Crear colecciones de patrones consistentes",
+        summary: "Para quien quiere ofrecer patrones con identidad propia.",
+        content: `Una colección coherente tiene un "hilo conductor" visual: misma paleta de colores base, mismo estilo de trazo, dimensiones similares. Esto hace que tus patrones se vean profesionales y reconocibles.
+
+Cómo armar una colección en la app:
+1. Define una paleta de 8–12 colores base que uses en todos los patrones de la colección. Anota los códigos DMC y guárdalos en tus ajustes.
+2. Usa dimensiones estandarizadas (por ejemplo: todos los patrones de la colección son 60×60 o 80×100 puntos). Esto permite calcular tiempos y materiales de manera consistente.
+3. Nombra los patrones con un sistema claro: "Flores de verano 01", "Flores de verano 02", etc. Usa la Biblioteca para mantenerlos agrupados.
+4. Antes de publicar un patrón, termina al menos una versión en tela y sube la foto final. Los compradores necesitan ver el resultado real, no solo el digital.
+
+Coherencia de estilo:
+- Decide si usarás medios puntos (1/4 o 3/4) o solo puntos enteros. Los medios puntos dan más detalle pero complican la lectura.
+- Define un nivel de detalle estándar para toda la colección (bajo, medio o alto) y mantenlo.`
       },
       {
-        title: "Técnicas avanzadas de color",
-        content: "• **Blending**: combina hebras de dos colores diferentes para crear tonos intermedios.\n• **Confetti stitching**: para áreas con puntadas individuales de muchos colores, trabaja por columnas en vez de por color.\n• **Fusión de colores**: en la app, usa la herramienta de fusionar colores para simplificar patrones complejos sin perder la esencia del diseño."
+        title: "Organizar proyectos terminados y fotos de proceso para mostrar a clientas o en redes",
+        summary: "Tu biblioteca como portafolio profesional.",
+        content: `Las fotos de proceso son tan valiosas como la foto final. Muestran tu dedicación y ayudan a otras bordadoras a aprender de tu trabajo.
+
+Qué documentar en cada proyecto:
+1. Foto al inicio (tela en blanco con el centro marcado).
+2. Una foto cada 25–30% de avance: sube cada una en "Registro de progreso" del proyecto en la app.
+3. Foto al 100% antes del lavado y después del lavado/planchado.
+4. Foto del enmarcado o montaje final.
+
+Para redes sociales:
+- Las fotos de proceso generan más interacción que las fotos finales. Muestra los errores también, no solo los logros.
+- Anota en cada foto el código de los colores DMC que estás usando: es la información que más piden las seguidoras.
+- Usa las notas del proyecto para recordar qué materiales usaste, el tiempo total y cualquier adaptación que hiciste.
+
+Para clientas:
+- La Biblioteca de la app te permite ver todos tus proyectos de un vistazo. Puedes mostrarla directamente desde el teléfono.
+- Duplica un patrón existente para una nueva clienta, así mantienes el original intacto.
+- Las fotos de progreso son prueba de trabajo para clientes que pagan por encargo.`
       },
       {
-        title: "Acabado profesional",
-        content: "• Lava el bordado terminado con agua tibia y jabón suave.\n• Sécalo entre toallas, nunca lo retuerzas.\n• Plancha por el revés con una toalla debajo para que las puntadas no se aplasten.\n• Para enmarcar, usa cartón libre de ácido."
-      },
-      {
-        title: "Emprendimiento en bordado",
-        content: "• Documenta tu proceso: sube la foto del trabajo terminado en la app.\n• Calcula el costo real: hilos + tela + tiempo.\n• Ofrece patrones personalizados: convierte las fotos de tus clientes en patrones.\n• Usa la biblioteca de la app para organizar pedidos y proyectos."
+        title: "Técnicas avanzadas de color y acabado profesional",
+        summary: "Blending, confetti y cómo dejar el bordado listo para presentar.",
+        content: `Blending (mezcla de hebras):
+Combina una hebra de dos colores distintos en la misma aguja para crear tonos intermedios que no existen en la paleta DMC. Ejemplo: una hebra de azul cielo + una de blanco = celeste suave. En la app, fusiona dos colores similares y luego borda con blending en esa zona.
+
+Confetti stitching:
+Son las puntadas individuales de muchos colores distintos en una zona pequeña (como el pelaje de un animal o el fondo de un paisaje). El truco es trabajar por columnas verticales en vez de por color: así no tienes que cortar y atar el hilo decenas de veces.
+
+Acabado profesional:
+1. Lava el bordado terminado con agua tibia y jabón suave para quita el marcado del bastidor y la grasa de las manos.
+2. Sécalo entre toallas limpias sin retorcer.
+3. Plancha por el revés con una toalla gruesa debajo para que las puntadas no se aplasten.
+4. Para enmarcar: usa cartón libre de ácido (sin lignina) para que el bordado no se amarille con los años.
+5. Documenta todo en la app antes de entregar o empacar.`
       }
     ]
   }
@@ -109,7 +256,12 @@ const ERRORES_COMUNES = [
 ];
 
 export default function Ayuda() {
-  const [level, setLevel] = useState('principiante');
+  // Leer nivel guardado en preferencias
+  let nivelGuardado = 'principiante';
+  try {
+    const prefs = JSON.parse(localStorage.getItem('pcstudio-prefs') || '{}');
+    if (prefs.nivel) nivelGuardado = prefs.nivel === 'avanzado' ? 'avanzado' : prefs.nivel;
+  } catch {}
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-8">
@@ -118,8 +270,8 @@ export default function Ayuda() {
         <p className="text-sm text-muted-foreground mt-1">Aprende según tu nivel de experiencia</p>
       </div>
 
-      {/* Level Selector */}
-      <Tabs value={level} onValueChange={setLevel}>
+      {/* Level Tabs */}
+      <Tabs defaultValue={nivelGuardado}>
         <TabsList className="w-full h-auto grid grid-cols-3 p-1">
           {Object.entries(HELP_CONTENT).map(([key, data]) => (
             <TabsTrigger key={key} value={key} className="py-2.5 text-xs sm:text-sm data-[state=active]:shadow-sm">
@@ -136,9 +288,16 @@ export default function Ayuda() {
             </div>
             <Accordion type="single" collapsible className="space-y-2">
               {data.sections.map((section, i) => (
-                <AccordionItem key={i} value={`${key}-${i}`} className="border border-border rounded-xl px-4 data-[state=open]:bg-card">
-                  <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
-                    {section.title}
+                <AccordionItem
+                  key={i}
+                  value={`${key}-${i}`}
+                  className="border border-border rounded-xl px-4 data-[state=open]:bg-card"
+                >
+                  <AccordionTrigger className="hover:no-underline py-4 text-left">
+                    <div className="flex-1 text-left pr-3">
+                      <p className="text-sm font-medium">{section.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{section.summary}</p>
+                    </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line pb-4">
                     {section.content}
@@ -151,7 +310,7 @@ export default function Ayuda() {
       </Tabs>
 
       {/* Common Mistakes */}
-      <section className="space-y-4">
+      <section className="space-y-4" id="errores-comunes">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-amber-500" />
           <h2 className="font-heading text-lg font-semibold">Errores comunes</h2>

@@ -12,10 +12,36 @@ import { AIDA_INFO, TAMANOS_SUGERIDOS, calcPhysicalSize, calcEstimatedTime, calc
 import { convertImageToPattern } from '@/lib/patternEngine';
 import { guardarPatron } from '@/lib/storage';
 import { useToast } from '@/components/ui/use-toast';
+import TipContextual from '@/components/TipContextual';
+
+const TIPS_NUEVO = {
+  principiante: [
+    "Para tu primer patrón, elige tamaño Pequeño (40×50 pts) sobre tela Aida 14 ct. Terminarás antes y aprenderás más.",
+    "Limita los colores a 8–10 para que el patrón sea manejable. Más colores no siempre es mejor.",
+    "Elige imágenes con contornos claros y fondo simple: flores, animales de perfil, íconos."
+  ],
+  intermedio: [
+    "Sube el contraste de la imagen antes de convertir: colores más definidos = patrón más limpio.",
+    "Si el resultado tiene demasiados colores similares, baja el máximo y fusiónalos en el editor.",
+    "Un patrón de 60×80 ya captura bastante detalle para la mayoría de fotos."
+  ],
+  avanzado: [
+    "Para colecciones, estandariza las dimensiones y la paleta base para que todos los patrones se vean coherentes.",
+    "Usa nivel de detalle 'Alto' solo si la imagen lo justifica; de lo contrario 'Medio' es más limpio."
+  ]
+};
 
 export default function NuevoPatron() {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Leer nivel de preferencias
+  let nivelUsuario = 'principiante';
+  try {
+    const prefs = JSON.parse(localStorage.getItem('pcstudio-prefs') || '{}');
+    if (prefs.nivel) nivelUsuario = prefs.nivel;
+  } catch {}
+  const tips = TIPS_NUEVO[nivelUsuario] || TIPS_NUEVO.principiante;
   const fileRef = useRef();
   const canvasRef = useRef();
 
@@ -148,6 +174,15 @@ export default function NuevoPatron() {
           {step === 1 ? 'Sube una imagen para comenzar' : step === 2 ? 'Ajusta tu imagen' : step === 3 ? 'Configura los parámetros' : 'Convirtiendo...'}
         </p>
       </div>
+
+      {/* Tip contextual */}
+      {step <= 3 && (
+        <TipContextual
+          tips={tips}
+          enlace={{ texto: 'Ver más consejos', to: '/ayuda' }}
+          storageKey={`nuevo-patron-${nivelUsuario}`}
+        />
+      )}
 
       {/* Steps indicator */}
       <div className="flex items-center gap-2">

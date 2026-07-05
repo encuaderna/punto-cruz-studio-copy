@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon, BookHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
 import { STATUS_LABELS, DIFFICULTY_LABELS, AIDA_INFO, suggestThreadCount } from '@/lib/constants';
 import { sincronizarDesdeBackend, actualizarPatron, eliminarPatron } from '@/lib/storage';
 
@@ -21,6 +22,7 @@ export default function ProyectoDetalle() {
   const [notas, setNotas] = useState('');
   const [savingNotas, setSavingNotas] = useState(false);
   const [fotosProgreso, setFotosProgreso] = useState([]);
+  const [notasFoto, setNotasFoto] = useState({});
   const [uploadingFoto, setUploadingFoto] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,14 @@ export default function ProyectoDetalle() {
         const p = await base44.entities.Patron.get(id);
         setPatron(p);
         setNotas(p.notas || '');
-        try { setFotosProgreso(JSON.parse(p.fotos_progreso || '[]')); } catch { setFotosProgreso([]); }
+        let fotos = [];
+        try { fotos = JSON.parse(p.fotos_progreso || '[]'); } catch {}
+        setFotosProgreso(fotos);
+        // Cargar notas de foto desde localStorage
+        try {
+          const n = JSON.parse(localStorage.getItem(`foto-notas-${id}`) || '{}');
+          setNotasFoto(n);
+        } catch {}
         sincronizarDesdeBackend(p);
       } catch {
         navigate('/');
@@ -101,7 +110,22 @@ export default function ProyectoDetalle() {
     const nuevasFotos = fotosProgreso.filter((_, i) => i !== index);
     await base44.entities.Patron.update(id, { fotos_progreso: JSON.stringify(nuevasFotos) });
     setFotosProgreso(nuevasFotos);
+    // Reindexar notas
+    const nuevasNotas = {};
+    Object.entries(notasFoto).forEach(([k, v]) => {
+      const ki = parseInt(k);
+      if (ki < index) nuevasNotas[ki] = v;
+      else if (ki > index) nuevasNotas[ki - 1] = v;
+    });
+    setNotasFoto(nuevasNotas);
+    try { localStorage.setItem(`foto-notas-${id}`, JSON.stringify(nuevasNotas)); } catch {}
     toast({ title: "Foto eliminada" });
+  };
+
+  const handleNotaFoto = (index, texto) => {
+    const nuevasNotas = { ...notasFoto, [index]: texto };
+    setNotasFoto(nuevasNotas);
+    try { localStorage.setItem(`foto-notas-${id}`, JSON.stringify(nuevasNotas)); } catch {}
   };
 
   const handlePhotoUpload = async (file) => {
@@ -284,24 +308,42 @@ export default function ProyectoDetalle() {
             </div>
           </label>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {fotosProgreso.map((foto, index) => (
-              <div key={index} className="relative group rounded-xl overflow-hidden bg-muted aspect-square">
-                <img src={foto.url} alt={`Progreso ${index + 1}`} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-                  <p className="text-white text-xs font-medium">{foto.porcentaje}% completado</p>
-                  <p className="text-white/70 text-[10px]">{new Date(foto.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <div className="space-y-4">
+            {/* Fotos en orden cronológico con notas */}
+            {[...fotosProgreso]
+              .map((foto, i) => ({ ...foto, _idx: i }))
+              .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+              .map((foto) => (
+                <div key={foto._idx} className="border border-border rounded-xl overflow-hidden">
+                  <div className="relative group">
+                    <img src={foto.url} alt={`Etapa ${foto._idx + 1}`} className="w-full max-h-64 object-cover" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                      <p className="text-white text-sm font-medium">{foto.porcentaje}% completado</p>
+                      <p className="text-white/70 text-xs">{new Date(foto.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteFotoProgreso(foto._idx)}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="p-3 bg-muted/30">
+                    <Input
+                      value={notasFoto[foto._idx] || ''}
+                      onChange={e => handleNotaFoto(foto._idx, e.target.value.slice(0, 140))}
+                      placeholder="¿Qué aprendiste o corregiste en esta etapa? (hasta 140 caracteres)"
+                      className="text-xs h-9 bg-card"
+                    />
+                    {notasFoto[foto._idx] && (
+                      <p className="text-[10px] text-muted-foreground mt-1 text-right">{notasFoto[foto._idx].length}/140</p>
+                    )}
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteFotoProgreso(index)}
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-            <label className="cursor-pointer border-2 border-dashed border-border rounded-xl aspect-square flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-colors">
+              ))
+            }
+            {/* Botón añadir */}
+            <label className="cursor-pointer border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-colors">
               <input
                 type="file"
                 accept="image/*"
@@ -314,13 +356,41 @@ export default function ProyectoDetalle() {
               ) : (
                 <>
                   <Plus className="w-6 h-6 text-muted-foreground/50 mb-1" />
-                  <span className="text-xs text-muted-foreground/60">Añadir</span>
+                  <span className="text-xs text-muted-foreground/60">Añadir otra foto</span>
                 </>
               )}
             </label>
           </div>
         )}
       </div>
+
+      {/* Lo que aprendí */}
+      {Object.values(notasFoto).filter(Boolean).length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <BookHeart className="w-5 h-5 text-primary" />
+            <h3 className="font-heading font-semibold">Lo que aprendí con este proyecto</h3>
+          </div>
+          <ul className="space-y-2">
+            {Object.entries(notasFoto)
+              .filter(([, v]) => v && v.trim())
+              .sort(([a], [b]) => Number(a) - Number(b))
+              .slice(0, 3)
+              .map(([idx, nota]) => {
+                const foto = fotosProgreso[Number(idx)];
+                return (
+                  <li key={idx} className="flex gap-2 text-sm">
+                    <span className="text-muted-foreground shrink-0">
+                      {foto ? `${foto.porcentaje}%` : `Etapa ${Number(idx) + 1}`}:
+                    </span>
+                    <span className="text-foreground">{nota}</span>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
+      )}
 
       {/* Final Photo */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-3">

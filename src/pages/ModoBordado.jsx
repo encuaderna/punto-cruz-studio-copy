@@ -12,6 +12,22 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { useToast } from '@/components/ui/use-toast';
 import PatternGrid from '@/components/PatternGrid';
 import ColorPalette from '@/components/ColorPalette';
+import TipContextual from '@/components/TipContextual';
+
+const TIPS_BORDADO = {
+  principiante: [
+    "Marca un bloque 10×10 a la vez para no perderte en el patrón.",
+    "Trabaja un color completo antes de cambiar al siguiente."
+  ],
+  intermedio: [
+    "Usa 'Solo pendiente' para ver exactamente qué falta en cada zona.",
+    "Aprovecha las fotos de progreso para comparar tu avance etapa a etapa."
+  ],
+  avanzado: [
+    "Activa el filtro por color y usa la técnica de 'parking' para zonas con muchos cambios.",
+    "Guarda periódicamente para que el progreso quede registrado en la biblioteca."
+  ]
+};
 
 export default function ModoBordado() {
   const { id } = useParams();
@@ -30,7 +46,15 @@ export default function ModoBordado() {
   const [saving, setSaving] = useState(false);
   const [highlightRow, setHighlightRow] = useState(null);
   const [highlightCol, setHighlightCol] = useState(null);
-  
+
+  // Nivel de la usuaria
+  let nivelUsuario = 'principiante';
+  try {
+    const prefs = JSON.parse(localStorage.getItem('pcstudio-prefs') || '{}');
+    if (prefs.nivel) nivelUsuario = prefs.nivel;
+  } catch {}
+  const tipsBordado = TIPS_BORDADO[nivelUsuario] || TIPS_BORDADO.principiante;
+
   // Timer
   const [timerActive, setTimerActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -279,6 +303,14 @@ export default function ModoBordado() {
             <button className="ml-1" onClick={() => setActiveColor(null)}>✕</button>
           </Badge>
         )}
+      </div>
+
+      {/* Tip contextual del modo bordado */}
+      <div className="px-3 pt-2 shrink-0">
+        <TipContextual
+          tips={tipsBordado}
+          storageKey={`bordado-${nivelUsuario}`}
+        />
       </div>
 
       {/* Grid */}

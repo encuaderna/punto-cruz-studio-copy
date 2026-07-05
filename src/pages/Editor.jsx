@@ -12,6 +12,7 @@ import PatternGrid from '@/components/PatternGrid';
 import ColorPalette from '@/components/ColorPalette';
 import { mergeColors } from '@/lib/patternEngine';
 import { sincronizarDesdeBackend, actualizarPatron } from '@/lib/storage';
+import TipContextual from '@/components/TipContextual';
 
 export default function Editor() {
   const { id } = useParams();
@@ -28,6 +29,9 @@ export default function Editor() {
   const [undoStack, setUndoStack] = useState([]);
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState('grid');
+  const [tipVisible, setTipVisible] = useState(() => {
+    try { return localStorage.getItem(`tip-oculto-editor-${id}`) !== '1'; } catch { return true; }
+  });
 
   useEffect(() => {
     async function load() {
@@ -142,6 +146,21 @@ export default function Editor() {
           </Button>
         </div>
       </div>
+
+      {/* Tip contextual del editor */}
+      {tipVisible && (
+        <div className="px-3 py-2 shrink-0">
+          <TipContextual
+            tips={[
+              "Usa el zoom (+/–) para ver mejor cada celda del patrón.",
+              "Activa 'Símbolos' en la barra si tienes colores muy similares.",
+              "Los bloques 10×10 te ayudan a orientarte; trabaja de a uno."
+            ]}
+            enlace={{ texto: 'Aprende a simplificar tu patrón', to: '/ayuda' }}
+            storageKey={`editor-${id}`}
+          />
+        </div>
+      )}
 
       {/* Content - responsive layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
