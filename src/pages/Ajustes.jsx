@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Moon, Sun, LogOut, User, Palette, Grid3X3, Save, Loader2 } from 'lucide-react';
+import { Moon, Sun, LogOut, User, Palette, Grid3X3, Save, Loader2, Cloud, HardDrive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
