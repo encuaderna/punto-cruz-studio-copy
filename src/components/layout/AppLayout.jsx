@@ -71,21 +71,33 @@ export default function AppLayout() {
 
       {/* Mobile Bottom Nav */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/95 backdrop-blur-md border-t border-border pb-safe">
-        <div className="flex items-center justify-around px-2 py-1">
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl min-w-[56px] transition-all ${
-                isActive(item.path)
-                  ? 'text-primary'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              <item.icon className={`w-5 h-5 ${isActive(item.path) ? 'stroke-[2.5]' : ''}`} />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          ))}
+        <div className="flex items-center justify-around px-1 py-1">
+          {NAV_ITEMS.map(item => {
+            const active = isActive(item.path);
+            const isPrimary = ['/', '/biblioteca', '/nuevo'].includes(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="flex flex-col items-center gap-0.5 py-2 px-2 min-w-[56px] transition-all relative"
+              >
+                {/* Pill indicator on active primary items */}
+                {active && isPrimary && (
+                  <span className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary" />
+                )}
+                <div className={`flex items-center justify-center rounded-xl transition-all ${
+                  active ? 'text-primary' : 'text-muted-foreground'
+                } ${isPrimary ? 'mt-1' : 'mt-1'}`}>
+                  <item.icon className={`transition-all ${
+                    isPrimary ? 'w-6 h-6' : 'w-5 h-5'
+                  } ${active ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
+                </div>
+                <span className={`text-[10px] font-medium transition-colors ${
+                  active ? 'text-primary' : 'text-muted-foreground'
+                }`}>{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>
