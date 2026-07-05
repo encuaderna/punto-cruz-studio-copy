@@ -5,6 +5,7 @@ import { guardarPatron, cargarPatrones } from '@/lib/storage';
 import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3, Play, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProjectCard from '@/components/ProjectCard';
+import EstadisticasMes from '@/components/EstadisticasMes';
 
 export default function Dashboard() {
   const [projects, setProjects] = useState([]);
@@ -138,6 +139,9 @@ export default function Dashboard() {
           </div>
         </section>
       )}
+
+      {/* Estadísticas del mes */}
+      {projects.length > 0 && <EstadisticasMes projects={projects} />}
 
       {/* Recent Projects */}
       {recentProjects.length > 0 ? (
