@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Home, PlusCircle, FolderOpen, HelpCircle, Settings, Scissors } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -65,7 +66,17 @@ export default function AppLayout() {
         </header>
         
         <div className="max-w-6xl mx-auto">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeInOut' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 

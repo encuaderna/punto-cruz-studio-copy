@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Moon, Sun, LogOut, User, Palette, Grid3X3, Save, Loader2, Cloud, HardDrive } from 'lucide-react';
+import { Moon, Sun, LogOut, User, Palette, Grid3X3, Save, Loader2, Cloud, HardDrive, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -53,8 +53,34 @@ export default function Ajustes() {
     }
   };
 
+  const [deletingData, setDeletingData] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const handleLogout = () => {
     base44.auth.logout('/login');
+  };
+
+  const handleDeleteData = async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setDeletingData(true);
+    try {
+      // Delete all user's patterns
+      const patrones = await base44.entities.Patron.list();
+      await Promise.all(patrones.map(p => base44.entities.Patron.delete(p.id)));
+      // Clear local storage
+      localStorage.removeItem('pcstudio-prefs');
+      localStorage.removeItem('pcstudio-theme');
+      toast({ title: "Datos eliminados", description: "Todos tus patrones y preferencias han sido borrados." });
+      setTimeout(() => base44.auth.logout('/login'), 1500);
+    } catch {
+      toast({ title: "Error al eliminar datos", variant: "destructive" });
+    } finally {
+      setDeletingData(false);
+      setConfirmDelete(false);
+    }
   };
 
   return (
@@ -180,6 +206,37 @@ export default function Ajustes() {
             <p className="text-xs text-muted-foreground">El tema, el nivel de experiencia y el avance de bordado en curso se guardan localmente y no se comparten entre dispositivos.</p>
           </div>
         </div>
+      </section>
+
+      {/* Danger Zone */}
+      <section className="bg-card border border-destructive/30 rounded-2xl p-5 space-y-4">
+        <h2 className="font-heading font-semibold text-base text-destructive">Zona de peligro</h2>
+        <div className="flex items-start gap-3 bg-destructive/5 rounded-xl p-3">
+          <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium">Eliminar todos mis datos</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Borra permanentemente todos tus patrones guardados y preferencias locales. Esta acción no se puede deshacer.</p>
+          </div>
+        </div>
+        {confirmDelete && (
+          <p className="text-xs text-destructive font-medium text-center bg-destructive/10 rounded-lg py-2">
+            ¿Estás seguro? Esta acción es irreversible. Haz clic de nuevo para confirmar.
+          </p>
+        )}
+        <Button
+          variant="outline"
+          className="w-full h-11 text-destructive border-destructive/40 hover:bg-destructive hover:text-white"
+          onClick={handleDeleteData}
+          disabled={deletingData}
+        >
+          {deletingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+          {confirmDelete ? 'Confirmar eliminación' : 'Eliminar todos mis datos'}
+        </Button>
+        {confirmDelete && (
+          <button className="text-xs text-muted-foreground w-full text-center" onClick={() => setConfirmDelete(false)}>
+            Cancelar
+          </button>
+        )}
       </section>
 
       <Separator />
