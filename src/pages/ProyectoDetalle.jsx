@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2 } from 'lucide-react';
+import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,8 @@ export default function ProyectoDetalle() {
   const [loading, setLoading] = useState(true);
   const [notas, setNotas] = useState('');
   const [savingNotas, setSavingNotas] = useState(false);
+  const [fotosProgreso, setFotosProgreso] = useState([]);
+  const [uploadingFoto, setUploadingFoto] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -26,6 +28,7 @@ export default function ProyectoDetalle() {
         const p = await base44.entities.Patron.get(id);
         setPatron(p);
         setNotas(p.notas || '');
+        try { setFotosProgreso(JSON.parse(p.fotos_progreso || '[]')); } catch { setFotosProgreso([]); }
       } catch {
         navigate('/');
       } finally {
@@ -73,6 +76,29 @@ export default function ProyectoDetalle() {
     await base44.entities.Patron.delete(id);
     toast({ title: "Patrón eliminado" });
     navigate('/biblioteca');
+  };
+
+  const handleProgresoUpload = async (file) => {
+    setUploadingFoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const nuevaFoto = { url: file_url, fecha: new Date().toISOString(), porcentaje: patron.porcentaje_avance || 0 };
+      const nuevasFotos = [...fotosProgreso, nuevaFoto];
+      await base44.entities.Patron.update(id, { fotos_progreso: JSON.stringify(nuevasFotos) });
+      setFotosProgreso(nuevasFotos);
+      toast({ title: "Foto de progreso agregada" });
+    } catch {
+      toast({ title: "Error al subir foto", variant: "destructive" });
+    } finally {
+      setUploadingFoto(false);
+    }
+  };
+
+  const handleDeleteFotoProgreso = async (index) => {
+    const nuevasFotos = fotosProgreso.filter((_, i) => i !== index);
+    await base44.entities.Patron.update(id, { fotos_progreso: JSON.stringify(nuevasFotos) });
+    setFotosProgreso(nuevasFotos);
+    toast({ title: "Foto eliminada" });
   };
 
   const handlePhotoUpload = async (file) => {
@@ -214,6 +240,83 @@ export default function ProyectoDetalle() {
         <Button variant="outline" size="sm" onClick={handleSaveNotas} disabled={savingNotas}>
           {savingNotas ? 'Guardando...' : 'Guardar notas'}
         </Button>
+      </div>
+
+      {/* Progress Photos */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-heading font-semibold">Registro de progreso</h3>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingFoto}
+              onChange={e => e.target.files[0] && handleProgresoUpload(e.target.files[0])}
+            />
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              {uploadingFoto ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+              {uploadingFoto ? 'Subiendo...' : 'Añadir foto'}
+            </span>
+          </label>
+        </div>
+
+        {fotosProgreso.length === 0 ? (
+          <label className="cursor-pointer block">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingFoto}
+              onChange={e => e.target.files[0] && handleProgresoUpload(e.target.files[0])}
+            />
+            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/40 hover:bg-accent/30 transition-colors">
+              <ImageIcon className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Sube fotos para documentar tu avance etapa por etapa</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Toca para seleccionar una imagen</p>
+            </div>
+          </label>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {fotosProgreso.map((foto, index) => (
+              <div key={index} className="relative group rounded-xl overflow-hidden bg-muted aspect-square">
+                <img src={foto.url} alt={`Progreso ${index + 1}`} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                  <p className="text-white text-xs font-medium">{foto.porcentaje}% completado</p>
+                  <p className="text-white/70 text-[10px]">{new Date(foto.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                </div>
+                <button
+                  onClick={() => handleDeleteFotoProgreso(index)}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <label className="cursor-pointer border-2 border-dashed border-border rounded-xl aspect-square flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploadingFoto}
+                onChange={e => e.target.files[0] && handleProgresoUpload(e.target.files[0])}
+              />
+              {uploadingFoto ? (
+                <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+              ) : (
+                <>
+                  <Plus className="w-6 h-6 text-muted-foreground/50 mb-1" />
+                  <span className="text-xs text-muted-foreground/60">Añadir</span>
+                </>
+              )}
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Final Photo */}

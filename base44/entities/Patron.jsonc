@@ -17,6 +17,9 @@
       "type": "string",
       "format": "uri"
     },
+    "fotos_progreso": {
+      "type": "string"
+    },
     "estado": {
       "type": "string",
       "enum": [
