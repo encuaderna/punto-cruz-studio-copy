@@ -270,6 +270,15 @@ export default function Ayuda() {
         <p className="text-sm text-muted-foreground mt-1">Aprende según tu nivel de experiencia</p>
       </div>
 
+      {/* Infografía de referencia */}
+      <div className="rounded-2xl overflow-hidden border border-border">
+        <img
+          src="https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/fc9419211_Gua_esencial_punto_de_cruz.png"
+          alt="Guía Esencial de Punto de Cruz: Técnicas y Pasos Fundamentales"
+          className="w-full object-contain"
+        />
+      </div>
+
       {/* Level Tabs */}
       <Tabs defaultValue={nivelGuardado}>
         <TabsList className="w-full h-auto grid grid-cols-3 p-1">
