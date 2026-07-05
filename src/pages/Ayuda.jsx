@@ -1,5 +1,6 @@
 import React from 'react';
 import { BookOpen, Target, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
+import InfografiaVisual from '@/components/InfografiaVisual';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,11 @@ const HELP_CONTENT = {
         summary: "Por dónde empezar sin abrumarse.",
         infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/f33f3b85a_Gua_de_telas_y_bordadoAidaCuadrill.png",
         infografiaAlt: "Guía Esencial de Punto de Cruz: Telas y Técnicas",
+        miniInfografia: { tipo: 'pasos', datos: { titulo: '3 pasos para tu primer proyecto', pasos: [
+          { icono: '🎨', titulo: 'Diseño pequeño', detalle: 'Máx. 40×40 puntos' },
+          { icono: '🧵', titulo: 'Tela Aida 14 ct', detalle: '2 hebras de hilo' },
+          { icono: '🎯', titulo: 'Pocos colores', detalle: '8–10 colores máx.' },
+        ]}},
         content: `Para tu primer bordado, elige un diseño de máximo 40×40 puntos sobre tela Aida 14 ct. Ese tamaño cabe en la palma de tu mano y lo puedes terminar en pocas sesiones, lo que da una enorme satisfacción.
 
 ¿Por qué Aida 14? Tiene agujeros visibles sin necesidad de lupa y el cuadro es suficientemente grande para manejar la aguja con facilidad. Usa 2 hebras de hilo DMC (sepáralas del madejo de 6 con cuidado, tirando de a una).
@@ -34,6 +40,12 @@ Consejo clave: no intentes terminar todo de una vez. Media hora al día es ideal
         summary: "Entiende el mapa antes de empezar a bordar.",
         infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/2d9e6a63b_Gua_maestra_de_punto_cruz.png",
         infografiaAlt: "Guía Maestra de Iniciación al Punto de Cruz: Del Lienzo a la Puntada",
+        miniInfografia: { tipo: 'checklist', datos: { titulo: 'Cómo orientarte en el patrón', items: [
+          { icono: '🔲', titulo: 'Bloques 10×10', detalle: 'Líneas gruesas = bloques guía. Nunca cuentes de a uno.' },
+          { icono: '⊕', titulo: 'Centro primero', detalle: 'Las flechas del patrón marcan el punto de partida.' },
+          { icono: '🔣', titulo: 'Símbolo vs color', detalle: 'Cambia la vista en la app: color o símbolo.' },
+          { icono: '📍', titulo: 'Marca tu avance', detalle: 'Toca cada puntada en Modo bordado para no perderte.' },
+        ]}},
         content: `Un patrón de punto cruz es como un mapa cuadriculado: cada cuadro representa una puntada y cada color (o símbolo) indica qué hilo usar.
 
 La cuadrícula y los bloques 10×10:
@@ -53,6 +65,12 @@ Tip: en el Modo bordado de la app puedes activar "Solo pendiente" para ver únic
       {
         title: "Errores comunes al comenzar y cómo prevenirlos",
         summary: "Contar mal, tensión del hilo y perder el centro.",
+        miniInfografia: { tipo: 'tabla', datos: { titulo: 'Errores frecuentes y cómo solucionarlos', col1: '❌ Error', col2: '✅ Qué hacer', filas: [
+          ['Contar mal cuadros', 'Muévete de bloque 10×10 en bloque, desde el centro.'],
+          ['Tensión incorrecta', 'El hilo debe quedar suave. Ni apretado ni suelto.'],
+          ['Perder el centro', 'Marca el centro con hilo de color antes de empezar.'],
+          ['Nudos al inicio', 'Asegura pasando el hilo bajo las primeras puntadas.'],
+        ]}},
         content: `Estos son los tres errores que cometen casi todas las personas al empezar:
 
 ❌ Contar mal los cuadros
@@ -74,6 +92,14 @@ Recuerda: deshacer puntadas mal hechas es parte del proceso. No te frustres, ¡h
         summary: "Lista esencial para empezar sin gastar de más.",
         infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/ae7ecd610_Gua_Materiales_Punto_de_Cruz.png",
         infografiaAlt: "Guía de Materiales Esenciales para Punto de Cruz",
+        miniInfografia: { tipo: 'checklist', datos: { titulo: 'Kit esencial de materiales', items: [
+          { icono: '🧶', titulo: 'Tela Aida 14 ct', detalle: 'La más versátil para comenzar.' },
+          { icono: '🪡', titulo: 'Hilos DMC / Anchor', detalle: 'Madejas de 6 hebras separables.' },
+          { icono: '🪢', titulo: 'Aguja tapicería N°24', detalle: 'Punta redondeada, no corta la tela.' },
+          { icono: '⭕', titulo: 'Bastidor o aro', detalle: 'Mantiene la tela tensa y uniforme.' },
+          { icono: '✂️', titulo: 'Tijeras pequeñas', detalle: 'Punta fina para cortar con precisión.' },
+          { icono: '📐', titulo: 'Hebras por tela', detalle: 'Aida 11→3 h · Aida 14→2 h · Aida 18→1 h' },
+        ]}},
         content: `No necesitas mucho para empezar. Esta es la lista mínima:
 
 • Tela Aida 14 ct: es la más versátil y fácil de conseguir.
@@ -100,6 +126,13 @@ Tip de ahorro: compra solo los hilos del patrón que vayas a hacer. Es tentador 
       {
         title: "Cómo adaptar una foto a patrón sin exceso de detalle",
         summary: "Convertir imágenes sin que el resultado sea un caos de colores.",
+        miniInfografia: { tipo: 'flujo', datos: { titulo: 'Flujo: de foto a patrón limpio', nodos: [
+          { tipo: 'inicio', icono: '📷', texto: 'Foto', subtexto: 'Fondo simple, buen contraste' },
+          { tipo: 'paso', icono: '⚡', texto: 'Ajustar', subtexto: '+Contraste, +Brillo' },
+          { tipo: 'paso', icono: '🎨', texto: '8–12 colores', subtexto: 'Empieza con pocos' },
+          { tipo: 'paso', icono: '📏', texto: '60×80 pts', subtexto: 'Tamaño moderado' },
+          { tipo: 'fin', icono: '✅', texto: 'Revisar', subtexto: 'Simplifica si hace falta' },
+        ]}},
         content: `El mayor desafío al convertir fotos a patrones es que las fotografías tienen millones de colores y gradientes que no se pueden bordar tal cual.
 
 Claves para una buena conversión:
@@ -120,6 +153,11 @@ Flujo recomendado en la app: sube → ajusta brillo/contraste → elige tamaño 
         summary: "Simplificar sin perder la esencia del diseño.",
         infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/1fe958899_Gua_hilos_para_punto_cruz.png",
         infografiaAlt: "Guía de Hilos y Hebras para Punto de Cruz",
+        miniInfografia: { tipo: 'tabla', datos: { titulo: 'Cuántos colores según el diseño', col1: '🎨 Nº colores', col2: '📌 Ideal para…', filas: [
+          ['6–8 colores', 'Siluetas, iconos, diseños muy gráficos.'],
+          ['10–15 colores', 'Flores, mascotas, paisajes simples.'],
+          ['15–25 colores', 'Retratos de personas, escenas detalladas.'],
+        ]}},
         content: `Reducir colores es un arte. El objetivo es que el motivo siga siendo reconocible aunque uses menos tonos.
 
 Estrategia de reducción:
@@ -184,6 +222,11 @@ Usa un organizador con los códigos de color anotados. Antes de empezar una sesi
       {
         title: "Crear colecciones de patrones consistentes",
         summary: "Para quien quiere ofrecer patrones con identidad propia.",
+        miniInfografia: { tipo: 'columnas', datos: { titulo: 'Organiza tu colección por estado', columnas: [
+          { icono: '✏️', titulo: 'Borrador', items: ['Idea inicial', 'Sin foto final', 'Paleta sin definir'] },
+          { icono: '🪡', titulo: 'En proceso', items: ['Bordado en curso', 'Fotos de avance', 'Código DMC anotado'] },
+          { icono: '✅', titulo: 'Completo', items: ['Foto final subida', 'Lista de materiales', 'Listo para vender'] },
+        ]}},
         content: `Una colección coherente tiene un "hilo conductor" visual: misma paleta de colores base, mismo estilo de trazo, dimensiones similares. Esto hace que tus patrones se vean profesionales y reconocibles.
 
 Cómo armar una colección en la app:
@@ -199,6 +242,12 @@ Coherencia de estilo:
       {
         title: "Organizar proyectos terminados y fotos de proceso para mostrar a clientas o en redes",
         summary: "Tu biblioteca como portafolio profesional.",
+        miniInfografia: { tipo: 'pasos', datos: { titulo: 'Construye tu portafolio paso a paso', pasos: [
+          { icono: '📌', titulo: 'Elige proyecto', detalle: 'Con historia visual' },
+          { icono: '📸', titulo: 'Registra progreso', detalle: 'Foto cada 25% de avance' },
+          { icono: '🖼️', titulo: 'Antes y después', detalle: 'Tela vacía → bordado final' },
+          { icono: '🌐', titulo: 'Publica o muestra', detalle: 'Redes o a clientas directamente' },
+        ]}},
         content: `Las fotos de proceso son tan valiosas como la foto final. Muestran tu dedicación y ayudan a otras bordadoras a aprender de tu trabajo.
 
 Qué documentar en cada proyecto:
@@ -321,6 +370,9 @@ export default function Ayuda() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pb-4 space-y-4">
+                    {section.miniInfografia && (
+                      <InfografiaVisual tipo={section.miniInfografia.tipo} datos={section.miniInfografia.datos} />
+                    )}
                     {section.infografia && (
                       <div className="rounded-xl overflow-hidden border border-border">
                         <img
