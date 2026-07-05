@@ -1,12 +1,8 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Sticker, CheckCircle2 } from 'lucide-react';
+import { Hash, CheckCircle2 } from 'lucide-react';
 
-// Últimas 4 semanas etiquetadas como S1..S4 dentro del mes actual
-function getSemanas(projects) {
-  const now = new Date();
-  const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
-
+function getSemanas(projects, inicioMes) {
   const semanas = [
     { semana: 'S1', puntadas: 0, proyectos: 0 },
     { semana: 'S2', puntadas: 0, proyectos: 0 },
@@ -20,19 +16,31 @@ function getSemanas(projects) {
     const dia = fecha.getDate();
     const idx = Math.min(Math.floor((dia - 1) / 7), 3);
     semanas[idx].puntadas += p.puntadas_completadas || 0;
-    if (p.estado === 'completado') semanas[idx].proyectos += 1;
+    // Solo contar como "completado este mes" si la fecha de creación está en el mes actual
+    const fechaCreacion = new Date(p.created_date);
+    if (p.estado === 'completado' && fechaCreacion >= inicioMes) {
+      semanas[idx].proyectos += 1;
+    }
   });
 
   return semanas;
 }
 
 export default function EstadisticasMes({ projects }) {
-  const now = new Date();
-  const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+  const { now, inicioMes } = useMemo(() => {
+    const now = new Date();
+    const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { now, inicioMes };
+  }, []);
+
+  const mesNombre = useMemo(
+    () => now.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }),
+    [now]
+  );
 
   const proyectosEsteMes = useMemo(
     () => projects.filter(p => new Date(p.updated_date || p.created_date) >= inicioMes),
-    [projects]
+    [projects, inicioMes]
   );
 
   const puntadasMes = useMemo(
@@ -41,13 +49,11 @@ export default function EstadisticasMes({ projects }) {
   );
 
   const completadosMes = useMemo(
-    () => projects.filter(p => p.estado === 'completado' && new Date(p.updated_date || p.created_date) >= inicioMes).length,
-    [projects]
+    () => projects.filter(p => p.estado === 'completado' && new Date(p.created_date) >= inicioMes).length,
+    [projects, inicioMes]
   );
 
-  const semanas = useMemo(() => getSemanas(projects), [projects]);
-
-  const mesNombre = now.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
+  const semanas = useMemo(() => getSemanas(projects, inicioMes), [projects, inicioMes]);
 
   return (
     <section className="space-y-4">
@@ -57,7 +63,7 @@ export default function EstadisticasMes({ projects }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <Sticker className="w-5 h-5 text-primary" />
+            <Hash className="w-5 h-5 text-primary" />
           </div>
           <div>
             <p className="text-2xl font-bold font-heading leading-none">{puntadasMes.toLocaleString('es-CL')}</p>
