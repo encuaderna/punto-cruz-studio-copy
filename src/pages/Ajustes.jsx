@@ -160,6 +160,26 @@ export default function Ajustes() {
           {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Guardar preferencias
         </Button>
+        <p className="text-xs text-muted-foreground text-center pt-1">Estas preferencias se guardan solo en este dispositivo.</p>
+      </section>
+
+      {/* Almacenamiento */}
+      <section className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <h2 className="font-heading font-semibold text-base">Dónde se guardan tus datos</h2>
+        <div className="flex items-start gap-3">
+          <Cloud className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium">Proyectos y patrones → nube</p>
+            <p className="text-xs text-muted-foreground">Se sincronizan automáticamente con tu cuenta. Puedes acceder desde cualquier dispositivo.</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <HardDrive className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium">Preferencias y progreso local → este dispositivo</p>
+            <p className="text-xs text-muted-foreground">El tema, el nivel de experiencia y el avance de bordado en curso se guardan localmente y no se comparten entre dispositivos.</p>
+          </div>
+        </div>
       </section>
 
       <Separator />
