@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon, BookHeart, Tag } from 'lucide-react';
 import EtiquetasEditor from '@/components/EtiquetasEditor';
+import CalculadoraHilos from '@/components/CalculadoraHilos';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -255,6 +256,9 @@ export default function ProyectoDetalle() {
           </div>
         </div>
       </div>
+
+      {/* Calculadora de hilos */}
+      <CalculadoraHilos patron={patron} />
 
       {/* Etiquetas */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
