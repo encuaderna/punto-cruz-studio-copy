@@ -55,15 +55,14 @@ export default function NuevoPatron() {
   const [saturation, setSaturation] = useState(100);
 
   // Params
-  // Cargar últimos parámetros usados como defaults
-  const _ultimosParams = cargarParametrosUso();
+  // Cargar últimos parámetros usados como defaults (dentro del componente, no en módulo-scope)
   const [sizePreset, setSizePreset] = useState(null);
-  const [anchoP, setAnchoP] = useState(_ultimosParams?.anchoP || 60);
-  const [altoP, setAltoP] = useState(_ultimosParams?.altoP || 80);
-  const [maxColores, setMaxColores] = useState(_ultimosParams?.maxColores || 15);
-  const [detalle, setDetalle] = useState(_ultimosParams?.detalle || 'medio');
-  const [aidaCt, setAidaCt] = useState(_ultimosParams?.aidaCt || 14);
-  const [marca, setMarca] = useState(_ultimosParams?.marca || 'DMC');
+  const [anchoP, setAnchoP] = useState(() => cargarParametrosUso()?.anchoP || 60);
+  const [altoP, setAltoP] = useState(() => cargarParametrosUso()?.altoP || 80);
+  const [maxColores, setMaxColores] = useState(() => cargarParametrosUso()?.maxColores || 15);
+  const [detalle, setDetalle] = useState(() => cargarParametrosUso()?.detalle || 'medio');
+  const [aidaCt, setAidaCt] = useState(() => cargarParametrosUso()?.aidaCt || 14);
+  const [marca, setMarca] = useState(() => cargarParametrosUso()?.marca || 'DMC');
   const [converting, setConverting] = useState(false);
 
   const handleFile = useCallback((file) => {

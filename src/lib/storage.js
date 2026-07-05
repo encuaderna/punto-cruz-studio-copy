@@ -139,6 +139,7 @@ export function eliminarPatron(id) {
   safeRemove(`${GRID_PREFIX}${id}`);
   safeRemove(`${PALETTE_PREFIX}${id}`);
   safeRemove(`${PROGRESO_PREFIX}${id}`);
+  safeRemove(`${FOTO_NOTAS_PREFIX}${id}`);
 }
 
 // ─── Progreso de bordado ─────────────────────────────────────────────────────

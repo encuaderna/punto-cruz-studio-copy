@@ -29,9 +29,12 @@ export default function Editor() {
   const [undoStack, setUndoStack] = useState([]);
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState('grid');
-  const [tipVisible, setTipVisible] = useState(() => {
-    try { return localStorage.getItem(`tip-oculto-editor-${id}`) !== '1'; } catch { return true; }
-  });
+  const [tipVisible, setTipVisible] = useState(true);
+
+  // Leer preferencia de tip después de montar (id está disponible en useEffect, no en useState inicial)
+  useEffect(() => {
+    try { setTipVisible(localStorage.getItem(`tip-oculto-editor-${id}`) !== '1'); } catch {}
+  }, [id]);
 
   useEffect(() => {
     async function load() {
@@ -72,8 +75,11 @@ export default function Editor() {
     }
   };
 
+  // Límite de 30 para evitar memory leak en sesiones largas
+  const MAX_UNDO = 30;
+
   const handleMerge = (indexA, indexB) => {
-    setUndoStack(prev => [...prev, { grid: [...grid.map(r => [...r])], palette: [...palette] }]);
+    setUndoStack(prev => [...prev.slice(-MAX_UNDO), { grid: [...grid.map(r => [...r])], palette: [...palette] }]);
     const result = mergeColors(grid, palette, indexA, indexB);
     setGrid(result.grid);
     setPalette(result.palette);
@@ -90,7 +96,7 @@ export default function Editor() {
 
   const handleCellEdit = (x, y) => {
     if (highlightColor === null) return;
-    setUndoStack(prev => [...prev, { grid: [...grid.map(r => [...r])], palette: [...palette] }]);
+    setUndoStack(prev => [...prev.slice(-MAX_UNDO), { grid: [...grid.map(r => [...r])], palette: [...palette] }]);
     const newGrid = grid.map(r => [...r]);
     newGrid[y][x] = highlightColor;
     setGrid(newGrid);

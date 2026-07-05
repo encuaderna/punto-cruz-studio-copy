@@ -118,10 +118,12 @@ export default function PatternGrid({
   useEffect(() => { draw(); }, [draw]);
 
   const handleCanvasClick = (e) => {
-    if (!onStitchClick) return;
+    if (!onStitchClick || !canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / cellSize);
-    const y = Math.floor((e.clientY - rect.top) / cellSize);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const x = Math.floor((clientX - rect.left) / cellSize);
+    const y = Math.floor((clientY - rect.top) / cellSize);
     if (x >= 0 && x < width && y >= 0 && y < height) {
       onStitchClick(x, y);
     }
@@ -150,7 +152,8 @@ export default function PatternGrid({
         <canvas
           ref={canvasRef}
           onClick={handleCanvasClick}
-          className="cursor-crosshair"
+          onTouchEnd={(e) => { e.preventDefault(); handleCanvasClick(e.changedTouches ? { touches: e.changedTouches } : e); }}
+          className="cursor-crosshair touch-none"
         />
       </div>
     </div>

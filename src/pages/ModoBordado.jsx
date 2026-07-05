@@ -166,12 +166,24 @@ export default function ModoBordado() {
     }
   };
 
-  // Auto-save every 30 stitches
+  // Auto-save every 30 stitches — usa ref para evitar closure stale sobre completed
   const lastSaveCount = useRef(0);
+  const completedRef = useRef(completed);
+  useEffect(() => { completedRef.current = completed; }, [completed]);
+
   useEffect(() => {
     if (completedCount > 0 && completedCount - lastSaveCount.current >= 30) {
       lastSaveCount.current = completedCount;
-      handleSave();
+      const snap = completedRef.current;
+      const pct = patron?.total_puntadas > 0 ? Math.round((completedCount / patron.total_puntadas) * 100) : 0;
+      guardarProgreso(id, snap);
+      actualizarPatron(id, { puntadas_completadas: completedCount, porcentaje_avance: pct });
+      base44.entities.Patron.update(id, {
+        progreso_data: JSON.stringify(snap),
+        puntadas_completadas: completedCount,
+        porcentaje_avance: pct,
+        estado: pct >= 100 ? 'completado' : 'en_progreso'
+      }).catch(() => {}); // silencioso — el usuario puede guardar manualmente
     }
   }, [completedCount]);
 
