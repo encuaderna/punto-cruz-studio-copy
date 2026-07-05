@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Save, Eye, EyeOff, Palette, Target, BarChart3, Timer } from 'lucide-react';
+import { sincronizarDesdeBackend, guardarProgreso, cargarProgreso, actualizarPatron } from '@/lib/storage';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
@@ -42,14 +43,22 @@ export default function ModoBordado() {
         setPatron(p);
         if (p.grid_data) setGrid(JSON.parse(p.grid_data));
         if (p.colores_data) setPalette(JSON.parse(p.colores_data));
+
+        // Cargar progreso: fusionar backend + caché local (la local puede ser más reciente)
+        sincronizarDesdeBackend(p);
+        const localProg = cargarProgreso(id);
+        let backendProg = {};
         if (p.progreso_data) {
           try {
-            const prog = JSON.parse(p.progreso_data);
-            if (typeof prog === 'object' && !Array.isArray(prog)) {
-              setCompleted(prog);
-            }
+            const parsed = JSON.parse(p.progreso_data);
+            if (typeof parsed === 'object' && !Array.isArray(parsed)) backendProg = parsed;
           } catch {}
         }
+        // Fusionar: si la local tiene más puntadas, usar la local
+        const progToUse = Object.keys(localProg).length >= Object.keys(backendProg).length
+          ? localProg
+          : backendProg;
+        setCompleted(progToUse);
       } catch {
         navigate('/');
       } finally {
@@ -84,11 +93,13 @@ export default function ModoBordado() {
       } else {
         next[key] = true;
       }
+      // Guardar progreso en local inmediatamente (sin esperar al auto-save del backend)
+      guardarProgreso(id, next);
       return next;
     });
     setHighlightRow(y);
     setHighlightCol(x);
-  }, []);
+  }, [id]);
 
   const completedCount = Object.keys(completed).length;
   const totalStitches = patron?.total_puntadas || (grid.length * (grid[0]?.length || 0));
@@ -112,16 +123,20 @@ export default function ModoBordado() {
 
   const handleSave = async () => {
     setSaving(true);
+    const changes = {
+      progreso_data: JSON.stringify(completed),
+      puntadas_completadas: completedCount,
+      porcentaje_avance: percentage,
+      estado: percentage >= 100 ? 'completado' : 'en_progreso'
+    };
+    // Siempre guardar en local
+    guardarProgreso(id, completed);
+    actualizarPatron(id, { puntadas_completadas: completedCount, porcentaje_avance: percentage, estado: changes.estado });
     try {
-      await base44.entities.Patron.update(id, {
-        progreso_data: JSON.stringify(completed),
-        puntadas_completadas: completedCount,
-        porcentaje_avance: percentage,
-        estado: percentage >= 100 ? 'completado' : 'en_progreso'
-      });
+      await base44.entities.Patron.update(id, changes);
       toast({ title: "Progreso guardado", description: `${percentage}% completado` });
     } catch {
-      toast({ title: "Error", description: "No se pudo guardar el progreso.", variant: "destructive" });
+      toast({ title: "Guardado localmente", description: `${percentage}% completado (sin conexión al servidor)` });
     } finally {
       setSaving(false);
     }

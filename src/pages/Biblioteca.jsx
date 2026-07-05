@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProjectCard from '@/components/ProjectCard';
 import { STATUS_LABELS } from '@/lib/constants';
+import { guardarPatron, cargarPatrones } from '@/lib/storage';
 
 export default function Biblioteca() {
   const [projects, setProjects] = useState([]);
@@ -16,11 +17,20 @@ export default function Biblioteca() {
 
   useEffect(() => {
     async function load() {
+      // Mostrar caché local mientras carga el backend
+      const local = cargarPatrones();
+      if (local.length > 0) {
+        setProjects(local);
+        setLoading(false);
+      }
       try {
         const p = await base44.entities.Patron.list('-updated_date', 50);
         setProjects(p);
+        // Actualizar caché local con los datos del backend
+        p.forEach(patron => guardarPatron(patron));
       } catch (e) {
-        console.error(e);
+        if (local.length === 0) console.error(e);
+        // Si hay datos locales, ya se mostraron arriba
       } finally {
         setLoading(false);
       }

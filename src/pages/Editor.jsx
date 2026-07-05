@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import PatternGrid from '@/components/PatternGrid';
 import ColorPalette from '@/components/ColorPalette';
 import { mergeColors } from '@/lib/patternEngine';
+import { sincronizarDesdeBackend, actualizarPatron } from '@/lib/storage';
 
 export default function Editor() {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export default function Editor() {
         if (p.grid_data) setGrid(JSON.parse(p.grid_data));
         if (p.colores_data) setPalette(JSON.parse(p.colores_data));
         setViewMode(p.vista_modo || 'color');
+        // Sincronizar con caché local
+        sincronizarDesdeBackend(p);
       } catch {
         toast({ title: "Error", description: "No se encontró el patrón", variant: "destructive" });
         navigate('/');
@@ -48,15 +51,18 @@ export default function Editor() {
 
   const handleSave = async () => {
     setSaving(true);
+    const changes = {
+      grid_data: JSON.stringify(grid),
+      colores_data: JSON.stringify(palette),
+      vista_modo: viewMode
+    };
+    // Guardar en local primero (siempre disponible)
+    actualizarPatron(id, changes);
     try {
-      await base44.entities.Patron.update(id, {
-        grid_data: JSON.stringify(grid),
-        colores_data: JSON.stringify(palette),
-        vista_modo: viewMode
-      });
+      await base44.entities.Patron.update(id, changes);
       toast({ title: "Guardado", description: "Los cambios se guardaron correctamente." });
     } catch {
-      toast({ title: "Error", description: "No se pudieron guardar los cambios.", variant: "destructive" });
+      toast({ title: "Guardado localmente", description: "No se pudo sincronizar con el servidor, pero tus cambios están guardados.", variant: "default" });
     } finally {
       setSaving(false);
     }

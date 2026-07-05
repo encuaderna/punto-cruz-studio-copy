@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { STATUS_LABELS, DIFFICULTY_LABELS, AIDA_INFO, suggestThreadCount } from '@/lib/constants';
+import { sincronizarDesdeBackend, actualizarPatron, eliminarPatron } from '@/lib/storage';
 
 export default function ProyectoDetalle() {
   const { id } = useParams();
@@ -29,6 +30,7 @@ export default function ProyectoDetalle() {
         setPatron(p);
         setNotas(p.notas || '');
         try { setFotosProgreso(JSON.parse(p.fotos_progreso || '[]')); } catch { setFotosProgreso([]); }
+        sincronizarDesdeBackend(p);
       } catch {
         navigate('/');
       } finally {
@@ -73,6 +75,7 @@ export default function ProyectoDetalle() {
   };
 
   const handleDelete = async () => {
+    eliminarPatron(id); // borrar del caché local
     await base44.entities.Patron.delete(id);
     toast({ title: "Patrón eliminado" });
     navigate('/biblioteca');

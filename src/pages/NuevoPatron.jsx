@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AIDA_INFO, TAMANOS_SUGERIDOS, calcPhysicalSize, calcEstimatedTime, calcDifficulty, DIFFICULTY_LABELS } from '@/lib/constants';
 import { convertImageToPattern } from '@/lib/patternEngine';
+import { guardarPatron } from '@/lib/storage';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function NuevoPatron() {
@@ -87,8 +88,8 @@ export default function NuevoPatron() {
         
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         
-        // Convert
-        const result = convertImageToPattern(imageData, canvas.width, canvas.height, anchoP, altoP, maxColores, detalle);
+        // Convert — pasamos aidaCt para metadatos de tamaño físico precisos
+        const result = convertImageToPattern(imageData, canvas.width, canvas.height, anchoP, altoP, maxColores, detalle, aidaCt);
         
         // Upload original image
         let imageUrl = '';
@@ -99,8 +100,11 @@ export default function NuevoPatron() {
           } catch { }
         }
         
+        // Usar metadatos devueltos por el motor
+        const { metadata } = result;
+
         // Save pattern
-        const patron = await base44.entities.Patron.create({
+        const patronData = {
           nombre: nombre || 'Nuevo patrón',
           imagen_original: imageUrl,
           estado: 'borrador',
@@ -112,16 +116,20 @@ export default function NuevoPatron() {
           marca_hilos: marca,
           grid_data: JSON.stringify(result.grid),
           colores_data: JSON.stringify(result.palette),
-          progreso_data: JSON.stringify([]),
-          total_puntadas: result.totalStitches,
+          progreso_data: JSON.stringify({}),
+          total_puntadas: metadata.totalStitches,
           puntadas_completadas: 0,
           porcentaje_avance: 0,
-          tamano_estimado_cm: `${physSize.width} × ${physSize.height} cm`,
-          dificultad: difficulty,
-          tiempo_estimado: estimatedTime
-        });
-        
-        toast({ title: "¡Patrón creado!", description: "Tu patrón está listo para editar." });
+          tamano_estimado_cm: metadata.sizeCm,
+          dificultad: metadata.dificultad,
+          tiempo_estimado: metadata.tiempoEstimado
+        };
+        const patron = await base44.entities.Patron.create(patronData);
+
+        // Guardar en caché local
+        guardarPatron({ ...patronData, id: patron.id });
+
+        toast({ title: "¡Patrón creado!", description: `${metadata.numColors} colores · ${metadata.sizeCm}` });
         navigate(`/editor/${patron.id}`);
       };
       img.src = imageSrc;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { guardarPatron, cargarPatrones } from '@/lib/storage';
 import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProjectCard from '@/components/ProjectCard';
@@ -12,6 +13,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function load() {
+      // Mostrar datos locales inmediatamente
+      const local = cargarPatrones();
+      if (local.length > 0) {
+        setProjects(local);
+        setLoading(false);
+      }
       try {
         const [u, p] = await Promise.all([
           base44.auth.me(),
@@ -19,8 +26,9 @@ export default function Dashboard() {
         ]);
         setUser(u);
         setProjects(p);
+        p.forEach(patron => guardarPatron(patron));
       } catch (e) {
-        console.error(e);
+        if (local.length === 0) console.error(e);
       } finally {
         setLoading(false);
       }
