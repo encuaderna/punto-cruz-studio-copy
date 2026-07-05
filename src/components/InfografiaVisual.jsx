@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { X, ZoomIn } from 'lucide-react';
 
 // Paleta tierra / papel antiguo coherente con la app
 const estiloPanel = {
@@ -27,6 +28,43 @@ function Esquinas() {
       <span style={{ ...esquinaDecorativa({ top: 6, right: 6 }), borderTopWidth: 2, borderRightWidth: 2 }} />
       <span style={{ ...esquinaDecorativa({ bottom: 6, left: 6 }), borderBottomWidth: 2, borderLeftWidth: 2 }} />
       <span style={{ ...esquinaDecorativa({ bottom: 6, right: 6 }), borderBottomWidth: 2, borderRightWidth: 2 }} />
+    </>
+  );
+}
+
+/** Wrapper que añade tap-to-zoom a cualquier infografía */
+function ZoomablePanel({ children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div className="relative group cursor-zoom-in" onClick={() => setOpen(true)}>
+        {children}
+        <div className="absolute top-2 right-2 bg-black/30 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <ZoomIn className="w-3.5 h-3.5" />
+        </div>
+      </div>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="relative max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-2 right-2 z-10 bg-black/40 text-white rounded-full p-1.5 hover:bg-black/60 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div style={{ fontSize: '115%' }}>
+              {children}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -144,7 +182,6 @@ function FlujoDeTipo({ titulo, nodos }) {
               padding: '8px 12px',
               textAlign: 'center',
               minWidth: 90,
-              transform: nodo.tipo === 'decision' ? 'rotate(0deg)' : 'none',
             }}>
               {nodo.icono && <div style={{ fontSize: 16, marginBottom: 3 }}>{nodo.icono}</div>}
               <p style={{ fontSize: 11, fontWeight: 600, color: (nodo.tipo === 'inicio' || nodo.tipo === 'fin') ? '#f5efe0' : '#3d2a0e', lineHeight: 1.3 }}>{nodo.texto}</p>
@@ -193,12 +230,21 @@ function ColumnasTipo({ titulo, columnas }) {
 
 // ── Dispatcher ───────────────────────────────────────────────────────────────
 
+const COMPONENTES = {
+  pasos: PasosTipo,
+  checklist: ChecklistTipo,
+  tabla: TablaTipo,
+  flujo: FlujoDeTipo,
+  columnas: ColumnasTipo,
+};
+
 export default function InfografiaVisual({ tipo, datos }) {
   if (!datos) return null;
-  if (tipo === 'pasos') return <PasosTipo {...datos} />;
-  if (tipo === 'checklist') return <ChecklistTipo {...datos} />;
-  if (tipo === 'tabla') return <TablaTipo {...datos} />;
-  if (tipo === 'flujo') return <FlujoDeTipo {...datos} />;
-  if (tipo === 'columnas') return <ColumnasTipo {...datos} />;
-  return null;
+  const Comp = COMPONENTES[tipo];
+  if (!Comp) return null;
+  return (
+    <ZoomablePanel>
+      <Comp {...datos} />
+    </ZoomablePanel>
+  );
 }

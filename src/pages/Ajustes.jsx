@@ -68,8 +68,9 @@ export default function Ajustes() {
             <User className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <p className="font-medium">{user?.full_name || 'Usuario'}</p>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <p className="font-medium">{user?.full_name || <span className="text-muted-foreground italic">Sin nombre</span>}</p>
+            <p className="text-sm text-muted-foreground">{user?.email || 'Cargando...'}</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">Nombre y correo de tu cuenta</p>
           </div>
         </div>
       </section>
