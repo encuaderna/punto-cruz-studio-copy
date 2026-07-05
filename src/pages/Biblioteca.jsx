@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { PlusCircle, Search, FolderOpen, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProjectCard from '@/components/ProjectCard';
 import { STATUS_LABELS } from '@/lib/constants';
 import { guardarPatron, cargarPatrones } from '@/lib/storage';
@@ -76,28 +75,32 @@ export default function Biblioteca() {
         </Button>
       </div>
 
-      {/* Filtros de búsqueda y estado */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar patrón..."
-            className="pl-9 h-11"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-36 h-11">
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            {Object.entries(STATUS_LABELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Búsqueda */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar patrón..."
+          className="pl-9 h-11"
+        />
+      </div>
+
+      {/* Filtro por estado */}
+      <div className="flex flex-wrap gap-2">
+        {[{ value: 'todos', label: 'Todos' }, ...Object.entries(STATUS_LABELS).map(([k, v]) => ({ value: k, label: v }))].map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setStatusFilter(value)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              statusFilter === value
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Filtro por etiquetas */}
