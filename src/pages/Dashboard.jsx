@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { guardarPatron, cargarPatrones } from '@/lib/storage';
-import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3, Play, Star } from 'lucide-react';
+import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3, Play, Star, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProjectCard from '@/components/ProjectCard';
 import EstadisticasMes from '@/components/EstadisticasMes';
@@ -91,7 +91,7 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
-          <Scissors className="w-6 h-6 text-primary mb-2" />
+          <CheckCircle2 className="w-6 h-6 text-primary mb-2" />
           <div>
             <p className="text-2xl font-bold font-heading">{totalCompleted}</p>
             <p className="text-xs text-muted-foreground">Completados</p>
