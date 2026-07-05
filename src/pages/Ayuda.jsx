@@ -14,6 +14,8 @@ const HELP_CONTENT = {
       {
         title: "Tu primer proyecto: tela Aida 14, pequeño y manejable",
         summary: "Por dónde empezar sin abrumarse.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/f33f3b85a_Gua_de_telas_y_bordadoAidaCuadrill.png",
+        infografiaAlt: "Guía Esencial de Punto de Cruz: Telas y Técnicas",
         content: `Para tu primer bordado, elige un diseño de máximo 40×40 puntos sobre tela Aida 14 ct. Ese tamaño cabe en la palma de tu mano y lo puedes terminar en pocas sesiones, lo que da una enorme satisfacción.
 
 ¿Por qué Aida 14? Tiene agujeros visibles sin necesidad de lupa y el cuadro es suficientemente grande para manejar la aguja con facilidad. Usa 2 hebras de hilo DMC (sepáralas del madejo de 6 con cuidado, tirando de a una).
@@ -30,6 +32,8 @@ Consejo clave: no intentes terminar todo de una vez. Media hora al día es ideal
       {
         title: "Cómo leer un patrón: símbolos, cuadrícula y bloques 10×10",
         summary: "Entiende el mapa antes de empezar a bordar.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/2d9e6a63b_Gua_maestra_de_punto_cruz.png",
+        infografiaAlt: "Guía Maestra de Iniciación al Punto de Cruz: Del Lienzo a la Puntada",
         content: `Un patrón de punto cruz es como un mapa cuadriculado: cada cuadro representa una puntada y cada color (o símbolo) indica qué hilo usar.
 
 La cuadrícula y los bloques 10×10:
@@ -68,6 +72,8 @@ Recuerda: deshacer puntadas mal hechas es parte del proceso. No te frustres, ¡h
       {
         title: "Materiales básicos que necesitas",
         summary: "Lista esencial para empezar sin gastar de más.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/ae7ecd610_Gua_Materiales_Punto_de_Cruz.png",
+        infografiaAlt: "Guía de Materiales Esenciales para Punto de Cruz",
         content: `No necesitas mucho para empezar. Esta es la lista mínima:
 
 • Tela Aida 14 ct: es la más versátil y fácil de conseguir.
@@ -112,6 +118,8 @@ Flujo recomendado en la app: sube → ajusta brillo/contraste → elige tamaño 
       {
         title: "Cómo reducir colores manteniendo el motivo principal",
         summary: "Simplificar sin perder la esencia del diseño.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/1fe958899_Gua_hilos_para_punto_cruz.png",
+        infografiaAlt: "Guía de Hilos y Hebras para Punto de Cruz",
         content: `Reducir colores es un arte. El objetivo es que el motivo siga siendo reconocible aunque uses menos tonos.
 
 Estrategia de reducción:
@@ -149,6 +157,8 @@ Marca con lápiz las zonas ya bordadas en el papel. La app y el papel se complem
       {
         title: "Técnicas para mejorar tu bordado",
         summary: "Consistencia, tensión y organización del trabajo.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/d5854143a_Gua_Maestra_de_Punto_Cruz1.png",
+        infografiaAlt: "Guía Maestra de Punto de Cruz: Técnica, Puntos y Acabados",
         content: `Con experiencia básica ya adquirida, estos detalles marcan la diferencia en el resultado final:
 
 Consistencia en la dirección de la X:
@@ -210,6 +220,8 @@ Para clientas:
       {
         title: "Técnicas avanzadas de color y acabado profesional",
         summary: "Blending, confetti y cómo dejar el bordado listo para presentar.",
+        infografia: "https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/6bef5972c_Gua_de_bordado_punto_cruz.png",
+        infografiaAlt: "Guía de Punto de Cruz: El Arte de Bordar sin Nudos",
         content: `Blending (mezcla de hebras):
 Combina una hebra de dos colores distintos en la misma aguja para crear tonos intermedios que no existen en la paleta DMC. Ejemplo: una hebra de azul cielo + una de blanco = celeste suave. En la app, fusiona dos colores similares y luego borda con blending en esa zona.
 
@@ -308,8 +320,20 @@ export default function Ayuda() {
                       <p className="text-xs text-muted-foreground mt-0.5">{section.summary}</p>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line pb-4">
-                    {section.content}
+                  <AccordionContent className="pb-4 space-y-4">
+                    {section.infografia && (
+                      <div className="rounded-xl overflow-hidden border border-border">
+                        <img
+                          src={section.infografia}
+                          alt={section.infografiaAlt || section.title}
+                          className="w-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {section.content}
+                    </p>
                   </AccordionContent>
                 </AccordionItem>
               ))}
