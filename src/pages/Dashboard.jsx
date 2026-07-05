@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { guardarPatron, cargarPatrones } from '@/lib/storage';
-import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3 } from 'lucide-react';
+import { PlusCircle, FolderOpen, HelpCircle, Scissors, TrendingUp, Grid3X3, Play, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProjectCard from '@/components/ProjectCard';
 
@@ -98,16 +98,42 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Active Projects */}
+      {/* Bordando ahora — acceso rápido */}
       {activeProjects.length > 0 && (
-        <section className="space-y-4">
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-lg font-semibold">En progreso</h2>
-            <Link to="/biblioteca" className="text-sm text-primary font-medium hover:underline">Ver todos</Link>
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-primary fill-primary/20" />
+              <h2 className="font-heading text-lg font-semibold">Bordando ahora</h2>
+            </div>
+            <Link to="/biblioteca?estado=en_progreso" className="text-sm text-primary font-medium hover:underline">Ver todos</Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeProjects.slice(0, 3).map(p => (
-              <ProjectCard key={p.id} project={p} />
+          <div className="space-y-2">
+            {activeProjects.slice(0, 4).map(p => (
+              <div key={p.id} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:border-primary/40 transition-colors">
+                {p.imagen_original ? (
+                  <img src={p.imagen_original} alt={p.nombre} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <Scissors className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{p.nombre}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${p.porcentaje_avance || 0}%` }} />
+                    </div>
+                    <span className="text-xs text-muted-foreground shrink-0">{p.porcentaje_avance || 0}%</span>
+                  </div>
+                </div>
+                <Link
+                  to={`/bordado/${p.id}`}
+                  className="shrink-0 w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                </Link>
+              </div>
             ))}
           </div>
         </section>
