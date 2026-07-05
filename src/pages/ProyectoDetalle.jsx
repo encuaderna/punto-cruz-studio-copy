@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon, BookHeart } from 'lucide-react';
+import { ArrowLeft, Play, Edit3, Copy, Archive, Trash2, Camera, Download, Grid3X3, Palette as PaletteIcon, Clock, Ruler, Loader2, Plus, X, ImageIcon, BookHeart, Tag } from 'lucide-react';
+import EtiquetasEditor from '@/components/EtiquetasEditor';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -253,6 +254,22 @@ export default function ProyectoDetalle() {
             <p className="font-semibold text-sm">{threads}</p>
           </div>
         </div>
+      </div>
+
+      {/* Etiquetas */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <Tag className="w-4 h-4 text-primary" />
+          <h3 className="font-heading font-semibold">Etiquetas</h3>
+        </div>
+        <EtiquetasEditor
+          etiquetas={(() => { try { return JSON.parse(patron.etiquetas || '[]'); } catch { return []; } })()}
+          onChange={async (tags) => {
+            const val = JSON.stringify(tags);
+            await base44.entities.Patron.update(id, { etiquetas: val });
+            setPatron(prev => ({ ...prev, etiquetas: val }));
+          }}
+        />
       </div>
 
       {/* Notes */}

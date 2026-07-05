@@ -118,6 +118,9 @@
     },
     "tiempo_estimado": {
       "type": "string"
+    },
+    "etiquetas": {
+      "type": "string"
     }
   },
   "required": [
