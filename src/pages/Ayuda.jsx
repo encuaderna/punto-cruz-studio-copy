@@ -1,9 +1,10 @@
-import React from 'react';
-import { BookOpen, Target, Zap, AlertTriangle, Lightbulb } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, Target, Zap, AlertTriangle, BookOpenCheck, EyeOff } from 'lucide-react';
 import InfografiaVisual from '@/components/InfografiaVisual';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const HELP_CONTENT = {
   principiante: {
@@ -324,21 +325,45 @@ export default function Ayuda() {
     if (prefs.nivel) nivelGuardado = prefs.nivel === 'avanzado' ? 'avanzado' : prefs.nivel;
   } catch {}
 
+  const [modoLectura, setModoLectura] = useState(false);
+
+  // Clases que cambian según el modo
+  const contentText = modoLectura
+    ? "text-lg leading-8 text-foreground"
+    : "text-sm text-muted-foreground leading-7";
+  const triggerText = modoLectura
+    ? "text-base font-semibold leading-snug"
+    : "text-sm font-medium leading-snug";
+  const summaryText = modoLectura ? "hidden" : "text-xs text-muted-foreground mt-1 leading-relaxed";
+
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-8 pb-safe">
-      <div>
-        <h1 className="font-heading text-2xl font-bold">Ayuda y guías</h1>
-        <p className="text-sm text-muted-foreground mt-2">Aprende según tu nivel de experiencia</p>
+    <div className={`pb-safe transition-all duration-300 ${modoLectura ? 'p-5 md:p-10 max-w-2xl mx-auto space-y-6 bg-background min-h-screen' : 'p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-8'}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className={`font-heading font-bold ${modoLectura ? 'text-3xl' : 'text-2xl'}`}>Ayuda y guías</h1>
+          {!modoLectura && <p className="text-sm text-muted-foreground mt-2">Aprende según tu nivel de experiencia</p>}
+        </div>
+        <Button
+          variant={modoLectura ? "default" : "outline"}
+          size="sm"
+          onClick={() => setModoLectura(v => !v)}
+          className="shrink-0 gap-2 min-h-[40px]"
+        >
+          {modoLectura ? <EyeOff className="w-4 h-4" /> : <BookOpenCheck className="w-4 h-4" />}
+          <span className="hidden sm:inline">{modoLectura ? 'Salir' : 'Modo lectura'}</span>
+        </Button>
       </div>
 
-      {/* Infografía de referencia */}
-      <div className="rounded-2xl overflow-hidden border border-border">
-        <img
-          src="https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/fc9419211_Gua_esencial_punto_de_cruz.png"
-          alt="Guía Esencial de Punto de Cruz: Técnicas y Pasos Fundamentales"
-          className="w-full object-contain"
-        />
-      </div>
+      {/* Infografía de referencia — oculta en modo lectura */}
+      {!modoLectura && (
+        <div className="rounded-2xl overflow-hidden border border-border">
+          <img
+            src="https://media.base44.com/images/public/6a49c28fc2406a5f1b94fe34/fc9419211_Gua_esencial_punto_de_cruz.png"
+            alt="Guía Esencial de Punto de Cruz: Técnicas y Pasos Fundamentales"
+            className="w-full object-contain"
+          />
+        </div>
+      )}
 
       {/* Level Tabs */}
       <Tabs defaultValue={nivelGuardado}>
@@ -352,28 +377,31 @@ export default function Ayuda() {
 
         {Object.entries(HELP_CONTENT).map(([key, data]) => (
           <TabsContent key={key} value={key} className="mt-6 space-y-3">
-            <div className="flex items-center gap-2 mb-5">
-              <data.icon className={`w-5 h-5 ${data.color}`} />
-              <h2 className="font-heading text-lg font-semibold">Nivel {data.label}</h2>
-            </div>
+            {!modoLectura && (
+              <div className="flex items-center gap-2 mb-5">
+                <data.icon className={`w-5 h-5 ${data.color}`} />
+                <h2 className="font-heading text-lg font-semibold">Nivel {data.label}</h2>
+              </div>
+            )}
             <Accordion type="single" collapsible className="space-y-3">
               {data.sections.map((section, i) => (
                 <AccordionItem
                   key={i}
                   value={`${key}-${i}`}
-                  className="border border-border rounded-xl px-4 data-[state=open]:bg-card"
+                  className={`border border-border rounded-xl px-4 data-[state=open]:bg-card ${modoLectura ? 'px-5' : ''}`}
                 >
-                  <AccordionTrigger className="hover:no-underline min-h-[56px] py-4 text-left">
+                  <AccordionTrigger className={`hover:no-underline text-left ${modoLectura ? 'min-h-[60px] py-5' : 'min-h-[56px] py-4'}`}>
                     <div className="flex-1 text-left pr-3">
-                      <p className="text-sm font-medium leading-snug">{section.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{section.summary}</p>
+                      <p className={triggerText}>{section.title}</p>
+                      {section.summary && <p className={summaryText}>{section.summary}</p>}
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-5 space-y-5">
-                    {section.miniInfografia && (
+                  <AccordionContent className={`space-y-5 ${modoLectura ? 'pb-7' : 'pb-5'}`}>
+                    {/* Infografías ocultas en modo lectura para no distraer */}
+                    {!modoLectura && section.miniInfografia && (
                       <InfografiaVisual tipo={section.miniInfografia.tipo} datos={section.miniInfografia.datos} />
                     )}
-                    {section.infografia && (
+                    {!modoLectura && section.infografia && (
                       <div className="rounded-xl overflow-hidden border border-border">
                         <img
                           src={section.infografia}
@@ -384,7 +412,7 @@ export default function Ayuda() {
                       </div>
                     )}
                     {section.content && (
-                      <p className="text-sm text-muted-foreground leading-7 whitespace-pre-line max-w-prose">
+                      <p className={`whitespace-pre-line max-w-prose ${contentText}`}>
                         {section.content}
                       </p>
                     )}
@@ -400,22 +428,22 @@ export default function Ayuda() {
       <section className="space-y-4" id="errores-comunes">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-amber-500" />
-          <h2 className="font-heading text-lg font-semibold">Errores comunes</h2>
+          <h2 className={`font-heading font-semibold ${modoLectura ? 'text-xl' : 'text-lg'}`}>Errores comunes</h2>
         </div>
         <Accordion type="single" collapsible className="space-y-3">
           {ERRORES_COMUNES.map((item, i) => (
             <AccordionItem key={i} value={`err-${i}`} className="border border-border rounded-xl px-4 data-[state=open]:bg-card">
-              <AccordionTrigger className="text-sm font-medium min-h-[52px] py-4 hover:no-underline text-left leading-snug">
+              <AccordionTrigger className={`hover:no-underline text-left leading-snug ${modoLectura ? 'text-base font-semibold min-h-[60px] py-5' : 'text-sm font-medium min-h-[52px] py-4'}`}>
                 {item.error}
               </AccordionTrigger>
-              <AccordionContent className="pb-5 space-y-4">
+              <AccordionContent className={`space-y-4 ${modoLectura ? 'pb-7' : 'pb-5'}`}>
                 <div className="space-y-1.5">
                   <Badge variant="secondary" className="text-[11px] px-2.5 py-1">Prevención</Badge>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.prevencion}</p>
+                  <p className={contentText}>{item.prevencion}</p>
                 </div>
                 <div className="space-y-1.5">
                   <Badge variant="secondary" className="text-[11px] px-2.5 py-1">Corrección</Badge>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.correccion}</p>
+                  <p className={contentText}>{item.correccion}</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
