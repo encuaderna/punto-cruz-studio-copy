@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { STATUS_LABELS, DIFFICULTY_LABELS, AIDA_INFO, suggestThreadCount } from '@/lib/constants';
-import { sincronizarDesdeBackend, actualizarPatron, eliminarPatron } from '@/lib/storage';
+import { sincronizarDesdeBackend, actualizarPatron, eliminarPatron, guardarNotasFoto, cargarNotasFoto } from '@/lib/storage';
 
 export default function ProyectoDetalle() {
   const { id } = useParams();
@@ -36,11 +36,8 @@ export default function ProyectoDetalle() {
         let fotos = [];
         try { fotos = JSON.parse(p.fotos_progreso || '[]'); } catch {}
         setFotosProgreso(fotos);
-        // Cargar notas de foto desde localStorage
-        try {
-          const n = JSON.parse(localStorage.getItem(`foto-notas-${id}`) || '{}');
-          setNotasFoto(n);
-        } catch {}
+        // Cargar notas de foto desde módulo de storage
+        setNotasFoto(cargarNotasFoto(id));
         sincronizarDesdeBackend(p);
       } catch {
         navigate('/');
@@ -120,14 +117,14 @@ export default function ProyectoDetalle() {
       else if (ki > index) nuevasNotas[ki - 1] = v;
     });
     setNotasFoto(nuevasNotas);
-    try { localStorage.setItem(`foto-notas-${id}`, JSON.stringify(nuevasNotas)); } catch {}
+    guardarNotasFoto(id, nuevasNotas);
     toast({ title: "Foto eliminada" });
   };
 
   const handleNotaFoto = (index, texto) => {
     const nuevasNotas = { ...notasFoto, [index]: texto };
     setNotasFoto(nuevasNotas);
-    try { localStorage.setItem(`foto-notas-${id}`, JSON.stringify(nuevasNotas)); } catch {}
+    guardarNotasFoto(id, nuevasNotas);
   };
 
   const handlePhotoUpload = async (file) => {
@@ -153,7 +150,7 @@ export default function ProyectoDetalle() {
   const threads = suggestThreadCount(patron.tipo_aida);
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-7 pb-safe">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -174,23 +171,23 @@ export default function ProyectoDetalle() {
 
       {/* Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Button asChild className="h-12">
+        <Button asChild className="h-14 text-base">
           <Link to={`/bordado/${id}`}>
             <Play className="w-4 h-4 mr-2" />
             Bordar
           </Link>
         </Button>
-        <Button variant="secondary" asChild className="h-12">
+        <Button variant="secondary" asChild className="h-14">
           <Link to={`/editor/${id}`}>
             <Edit3 className="w-4 h-4 mr-2" />
             Editar
           </Link>
         </Button>
-        <Button variant="outline" onClick={handleDuplicate} className="h-12">
+        <Button variant="outline" onClick={handleDuplicate} className="h-14">
           <Copy className="w-4 h-4 mr-2" />
           Duplicar
         </Button>
-        <Button variant="outline" onClick={handleArchive} className="h-12">
+        <Button variant="outline" onClick={handleArchive} className="h-14">
           <Archive className="w-4 h-4 mr-2" />
           Archivar
         </Button>
@@ -198,7 +195,7 @@ export default function ProyectoDetalle() {
 
       {/* Progress */}
       {patron.estado === 'en_progreso' && (
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <h3 className="font-heading font-semibold">Progreso</h3>
           <div className="flex justify-between text-sm">
             <span>{patron.puntadas_completadas?.toLocaleString()} / {patron.total_puntadas?.toLocaleString()} puntadas</span>
@@ -209,9 +206,9 @@ export default function ProyectoDetalle() {
       )}
 
       {/* Details */}
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
         <h3 className="font-heading font-semibold">Detalles del patrón</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-5 text-sm">
           <div className="flex items-center gap-2">
             <Grid3X3 className="w-4 h-4 text-muted-foreground" />
             <div>
@@ -277,15 +274,16 @@ export default function ProyectoDetalle() {
       </div>
 
       {/* Notes */}
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
         <h3 className="font-heading font-semibold">Notas</h3>
         <Textarea
           value={notas}
           onChange={e => setNotas(e.target.value)}
           placeholder="Agrega notas sobre tu proyecto..."
-          rows={3}
+          rows={4}
+          className="text-sm leading-relaxed"
         />
-        <Button variant="outline" size="sm" onClick={handleSaveNotas} disabled={savingNotas}>
+        <Button variant="outline" onClick={handleSaveNotas} disabled={savingNotas} className="h-11">
           {savingNotas ? 'Guardando...' : 'Guardar notas'}
         </Button>
       </div>

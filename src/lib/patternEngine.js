@@ -146,16 +146,28 @@ export function convertImageToPattern(imageData, width, height, targetWidth, tar
     qColorToPaletteIdx.set(`${qc.r},${qc.g},${qc.b}`, idx >= 0 ? idx : 0);
   }
 
-  const grid = [];
-  for (let y = 0; y < targetHeight; y++) {
-    const row = [];
-    for (let x = 0; x < targetWidth; x++) {
-      const idx = (y * targetWidth + x) * 4;
-      const r = resizedData.data[idx];
-      const g = resizedData.data[idx + 1];
-      const b = resizedData.data[idx + 2];
+  // Asegurar que targetWidth y targetHeight sean enteros positivos
+  const tw = Math.max(1, Math.round(targetWidth));
+  const th = Math.max(1, Math.round(targetHeight));
 
-      // Encontrar el color cuantizado más cercano para este píxel
+  const grid = [];
+  for (let y = 0; y < th; y++) {
+    const row = [];
+    for (let x = 0; x < tw; x++) {
+      const idx = (y * tw + x) * 4;
+      const r = resizedData.data[idx] ?? 0;
+      const g = resizedData.data[idx + 1] ?? 0;
+      const b = resizedData.data[idx + 2] ?? 0;
+
+      // Si el píxel es transparente, mapear al color más frecuente (índice 0)
+      const a = resizedData.data[idx + 3] ?? 255;
+      if (a < 128) {
+        if (dmcPalette.length > 0) dmcPalette[0].stitchCount++;
+        row.push(0);
+        continue;
+      }
+
+      // Encontrar el color de la paleta más cercano para este píxel
       let minDist = Infinity;
       let closestPaletteIdx = 0;
       for (let p = 0; p < dmcPalette.length; p++) {
@@ -174,8 +186,8 @@ export function convertImageToPattern(imageData, width, height, targetWidth, tar
   }
 
   // ── 5. Calcular metadatos ──
-  const totalStitches = targetWidth * targetHeight;
-  const physSize = calcPhysicalSize(targetWidth, targetHeight, aidaCt);
+  const totalStitches = tw * th;
+  const physSize = calcPhysicalSize(tw, th, aidaCt);
   const dificultad = calcDifficulty(totalStitches, dmcPalette.length);
   const tiempoEstimado = calcEstimatedTime(totalStitches);
   const numColors = dmcPalette.length;
@@ -187,8 +199,8 @@ export function convertImageToPattern(imageData, width, height, targetWidth, tar
   return {
     grid,
     palette: dmcPalette,
-    width: targetWidth,
-    height: targetHeight,
+    width: tw,
+    height: th,
     totalStitches,
     metadata: {
       totalStitches,

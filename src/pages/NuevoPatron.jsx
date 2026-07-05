@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AIDA_INFO, TAMANOS_SUGERIDOS, calcPhysicalSize, calcEstimatedTime, calcDifficulty, DIFFICULTY_LABELS } from '@/lib/constants';
 import { convertImageToPattern } from '@/lib/patternEngine';
-import { guardarPatron } from '@/lib/storage';
+import { guardarPatron, guardarParametrosUso, cargarParametrosUso } from '@/lib/storage';
 import { useToast } from '@/components/ui/use-toast';
 import TipContextual from '@/components/TipContextual';
 
@@ -55,13 +55,15 @@ export default function NuevoPatron() {
   const [saturation, setSaturation] = useState(100);
 
   // Params
+  // Cargar últimos parámetros usados como defaults
+  const _ultimosParams = cargarParametrosUso();
   const [sizePreset, setSizePreset] = useState(null);
-  const [anchoP, setAnchoP] = useState(60);
-  const [altoP, setAltoP] = useState(80);
-  const [maxColores, setMaxColores] = useState(15);
-  const [detalle, setDetalle] = useState('medio');
-  const [aidaCt, setAidaCt] = useState(14);
-  const [marca, setMarca] = useState('DMC');
+  const [anchoP, setAnchoP] = useState(_ultimosParams?.anchoP || 60);
+  const [altoP, setAltoP] = useState(_ultimosParams?.altoP || 80);
+  const [maxColores, setMaxColores] = useState(_ultimosParams?.maxColores || 15);
+  const [detalle, setDetalle] = useState(_ultimosParams?.detalle || 'medio');
+  const [aidaCt, setAidaCt] = useState(_ultimosParams?.aidaCt || 14);
+  const [marca, setMarca] = useState(_ultimosParams?.marca || 'DMC');
   const [converting, setConverting] = useState(false);
 
   const handleFile = useCallback((file) => {
@@ -128,6 +130,9 @@ export default function NuevoPatron() {
         
         // Usar metadatos devueltos por el motor
         const { metadata } = result;
+
+        // Guardar parámetros para próxima vez
+        guardarParametrosUso({ anchoP, altoP, maxColores, detalle, aidaCt, marca });
 
         // Save pattern
         const patronData = {

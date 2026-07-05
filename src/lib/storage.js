@@ -9,6 +9,8 @@ const PATRONES_KEY = `${PREFIX}patrones`;
 const PROGRESO_PREFIX = `${PREFIX}progreso_`;
 const GRID_PREFIX = `${PREFIX}grid_`;
 const PALETTE_PREFIX = `${PREFIX}palette_`;
+const FOTO_NOTAS_PREFIX = `${PREFIX}foto_notas_`;
+const PARAMS_KEY = `${PREFIX}ultimo_uso`;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -173,4 +175,42 @@ export function sincronizarDesdeBackend(patron) {
       }
     } catch {}
   }
+}
+
+// ─── Notas de fotos de progreso ──────────────────────────────────────────────
+
+/**
+ * Guarda las notas asociadas a las fotos de progreso de un patrón.
+ * @param {string} id - ID del patrón
+ * @param {Record<number, string>} notas - objeto { índice: texto }
+ */
+export function guardarNotasFoto(id, notas) {
+  if (!id) return false;
+  return safeSet(`${FOTO_NOTAS_PREFIX}${id}`, notas);
+}
+
+/**
+ * Carga las notas de fotos de progreso desde localStorage.
+ */
+export function cargarNotasFoto(id) {
+  if (!id) return {};
+  return safeGet(`${FOTO_NOTAS_PREFIX}${id}`) || {};
+}
+
+// ─── Parámetros del último uso ────────────────────────────────────────────────
+
+/**
+ * Persiste los parámetros de conversión usados más recientemente
+ * para rellenarlos como defaults en el flujo Nuevo Patrón.
+ * @param {object} params - { anchoP, altoP, maxColores, detalle, aidaCt, marca }
+ */
+export function guardarParametrosUso(params) {
+  return safeSet(PARAMS_KEY, { ...params, ts: Date.now() });
+}
+
+/**
+ * Recupera los últimos parámetros usados, o null si no hay.
+ */
+export function cargarParametrosUso() {
+  return safeGet(PARAMS_KEY);
 }

@@ -186,7 +186,7 @@ export default function ModoBordado() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] lg:h-screen">
       {/* Top Bar */}
-      <div className="flex items-center gap-2 p-3 border-b border-border bg-card shrink-0">
+      <div className="flex items-center gap-2 p-3 md:p-4 border-b border-border bg-card shrink-0 min-h-[60px]">
         <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -199,18 +199,18 @@ export default function ModoBordado() {
         </div>
         
         <div className="flex items-center gap-1 shrink-0">
-          <Button variant={timerActive ? 'default' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setTimerActive(!timerActive)}>
+          <Button variant={timerActive ? 'default' : 'ghost'} size="icon" className="h-10 w-10" onClick={() => setTimerActive(!timerActive)}>
             <Timer className="w-4 h-4" />
           </Button>
           
           {timerActive && (
-            <span className="text-xs font-mono text-primary">{formatTime(seconds)}</span>
+            <span className="text-xs font-mono text-primary min-w-[54px]">{formatTime(seconds)}</span>
           )}
           
           {/* Stats Sheet */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-10 w-10">
                 <BarChart3 className="w-4 h-4" />
               </Button>
             </SheetTrigger>
@@ -252,7 +252,7 @@ export default function ModoBordado() {
           {/* Color Filter Sheet */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-10 w-10">
                 <Palette className="w-4 h-4" />
               </Button>
             </SheetTrigger>
@@ -280,7 +280,7 @@ export default function ModoBordado() {
             </SheetContent>
           </Sheet>
           
-          <Button variant="default" size="sm" className="h-8 text-xs" onClick={handleSave} disabled={saving}>
+          <Button variant="default" size="sm" className="h-10 text-xs px-3" onClick={handleSave} disabled={saving}>
             <Save className="w-3.5 h-3.5 mr-1" />
             Guardar
           </Button>
@@ -288,19 +288,19 @@ export default function ModoBordado() {
       </div>
 
       {/* Visual Aids Bar */}
-      <div className="flex items-center gap-4 px-3 py-2 border-b border-border bg-muted/50 text-xs overflow-x-auto shrink-0">
-        <label className="flex items-center gap-1.5 shrink-0 cursor-pointer">
-          <Switch checked={dimCompleted} onCheckedChange={setDimCompleted} className="scale-75" />
-          <span>Atenuar bordado</span>
+      <div className="flex items-center gap-5 px-4 py-3 border-b border-border bg-muted/50 text-xs overflow-x-auto shrink-0 min-h-[48px]">
+        <label className="flex items-center gap-2 shrink-0 cursor-pointer min-h-[40px]">
+          <Switch checked={dimCompleted} onCheckedChange={setDimCompleted} />
+          <span className="text-sm">Atenuar</span>
         </label>
-        <label className="flex items-center gap-1.5 shrink-0 cursor-pointer">
-          <Switch checked={hideCompleted} onCheckedChange={setHideCompleted} className="scale-75" />
-          <span>Solo pendiente</span>
+        <label className="flex items-center gap-2 shrink-0 cursor-pointer min-h-[40px]">
+          <Switch checked={hideCompleted} onCheckedChange={setHideCompleted} />
+          <span className="text-sm">Solo pendiente</span>
         </label>
         {activeColor !== null && (
-          <Badge variant="secondary" className="shrink-0 text-[10px]">
+          <Badge variant="secondary" className="shrink-0 text-xs py-1 px-2.5">
             Filtro: {palette[activeColor]?.dmc.code}
-            <button className="ml-1" onClick={() => setActiveColor(null)}>✕</button>
+            <button className="ml-1.5 leading-none" onClick={() => setActiveColor(null)}>✕</button>
           </Badge>
         )}
       </div>

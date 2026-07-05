@@ -325,10 +325,10 @@ export default function Ayuda() {
   } catch {}
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-8">
+    <div className="p-4 md:p-6 lg:p-8 max-w-3xl mx-auto space-y-8 pb-safe">
       <div>
         <h1 className="font-heading text-2xl font-bold">Ayuda y guías</h1>
-        <p className="text-sm text-muted-foreground mt-1">Aprende según tu nivel de experiencia</p>
+        <p className="text-sm text-muted-foreground mt-2">Aprende según tu nivel de experiencia</p>
       </div>
 
       {/* Infografía de referencia */}
@@ -344,32 +344,32 @@ export default function Ayuda() {
       <Tabs defaultValue={nivelGuardado}>
         <TabsList className="w-full h-auto grid grid-cols-3 p-1">
           {Object.entries(HELP_CONTENT).map(([key, data]) => (
-            <TabsTrigger key={key} value={key} className="py-2.5 text-xs sm:text-sm data-[state=active]:shadow-sm">
+            <TabsTrigger key={key} value={key} className="min-h-[44px] py-2.5 text-xs sm:text-sm data-[state=active]:shadow-sm">
               {data.label}
             </TabsTrigger>
           ))}
         </TabsList>
 
         {Object.entries(HELP_CONTENT).map(([key, data]) => (
-          <TabsContent key={key} value={key} className="mt-6">
-            <div className="flex items-center gap-2 mb-4">
+          <TabsContent key={key} value={key} className="mt-6 space-y-3">
+            <div className="flex items-center gap-2 mb-5">
               <data.icon className={`w-5 h-5 ${data.color}`} />
               <h2 className="font-heading text-lg font-semibold">Nivel {data.label}</h2>
             </div>
-            <Accordion type="single" collapsible className="space-y-2">
+            <Accordion type="single" collapsible className="space-y-3">
               {data.sections.map((section, i) => (
                 <AccordionItem
                   key={i}
                   value={`${key}-${i}`}
                   className="border border-border rounded-xl px-4 data-[state=open]:bg-card"
                 >
-                  <AccordionTrigger className="hover:no-underline py-4 text-left">
+                  <AccordionTrigger className="hover:no-underline min-h-[56px] py-4 text-left">
                     <div className="flex-1 text-left pr-3">
-                      <p className="text-sm font-medium">{section.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{section.summary}</p>
+                      <p className="text-sm font-medium leading-snug">{section.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{section.summary}</p>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-4 space-y-4">
+                  <AccordionContent className="pb-5 space-y-5">
                     {section.miniInfografia && (
                       <InfografiaVisual tipo={section.miniInfografia.tipo} datos={section.miniInfografia.datos} />
                     )}
@@ -383,9 +383,11 @@ export default function Ayuda() {
                         />
                       </div>
                     )}
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {section.content}
-                    </p>
+                    {section.content && (
+                      <p className="text-sm text-muted-foreground leading-7 whitespace-pre-line max-w-prose">
+                        {section.content}
+                      </p>
+                    )}
                   </AccordionContent>
                 </AccordionItem>
               ))}
@@ -400,20 +402,20 @@ export default function Ayuda() {
           <AlertTriangle className="w-5 h-5 text-amber-500" />
           <h2 className="font-heading text-lg font-semibold">Errores comunes</h2>
         </div>
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion type="single" collapsible className="space-y-3">
           {ERRORES_COMUNES.map((item, i) => (
             <AccordionItem key={i} value={`err-${i}`} className="border border-border rounded-xl px-4 data-[state=open]:bg-card">
-              <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
+              <AccordionTrigger className="text-sm font-medium min-h-[52px] py-4 hover:no-underline text-left leading-snug">
                 {item.error}
               </AccordionTrigger>
-              <AccordionContent className="pb-4 space-y-3">
-                <div>
-                  <Badge variant="secondary" className="text-[10px] mb-1.5">Prevención</Badge>
-                  <p className="text-sm text-muted-foreground">{item.prevencion}</p>
+              <AccordionContent className="pb-5 space-y-4">
+                <div className="space-y-1.5">
+                  <Badge variant="secondary" className="text-[11px] px-2.5 py-1">Prevención</Badge>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.prevencion}</p>
                 </div>
-                <div>
-                  <Badge variant="secondary" className="text-[10px] mb-1.5">Corrección</Badge>
-                  <p className="text-sm text-muted-foreground">{item.correccion}</p>
+                <div className="space-y-1.5">
+                  <Badge variant="secondary" className="text-[11px] px-2.5 py-1">Corrección</Badge>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.correccion}</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
